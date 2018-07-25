@@ -20,6 +20,7 @@ public class MemoryCache {
         };
     }
 
+
     /**
      * 将图片资源加载到内存中
      *
@@ -27,8 +28,10 @@ public class MemoryCache {
      * @param bitmap   对应图片的bitmap对象
      */
     public void addBitmapToCache(String imageUrl, Bitmap bitmap) {
-        if (bitmap != null) {
-            mLruCache.put(imageUrl, bitmap);
+        if (getBitmapFromCache(imageUrl) == null) {
+            if (bitmap != null) {
+                mLruCache.put(imageUrl, bitmap);
+            }
         }
     }
 
