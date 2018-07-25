@@ -5,7 +5,7 @@ import android.support.v4.app.Fragment;
 
 import java.lang.ref.WeakReference;
 
-public class Katakuri {
+public final class Katakuri {
 
     private final WeakReference<Activity> mContext;
     private final WeakReference<Fragment> mFragment;
@@ -28,13 +28,26 @@ public class Katakuri {
         return new Katakuri(fragment.getActivity(), fragment);
     }
 
-    Activity getActivity(){
+    public ConfigBuilder choose(ImageType type) {
+        return new ConfigBuilder(this, type);
+    }
+
+    Activity getActivity() {
         return mContext.get();
     }
 
-    Fragment getFragment(){
-       return mFragment.get();
+    Fragment getFragment() {
+        if (mFragment == null) {
+            return null;
+        } else {
+            return mFragment.get();
+        }
     }
 
+    public enum ImageType {
+
+        PNG, JPEG, ALL
+
+    }
 
 }

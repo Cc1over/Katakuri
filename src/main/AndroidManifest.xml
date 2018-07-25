@@ -1,2 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hebaiyi.www.katakuri" />
+    package="com.hebaiyi.www.katakuri">
+
+    <application>
+        <activity android:name=".activity.KatakuriActivity"></activity>
+    </application>
+
+</manifest>
