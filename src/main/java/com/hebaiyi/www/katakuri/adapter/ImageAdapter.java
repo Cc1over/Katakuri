@@ -1,6 +1,5 @@
 package com.hebaiyi.www.katakuri.adapter;
 
-import android.content.Context;
 import android.widget.ImageView;
 
 import com.hebaiyi.www.katakuri.R;

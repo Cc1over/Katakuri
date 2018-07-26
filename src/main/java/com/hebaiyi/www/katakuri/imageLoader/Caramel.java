@@ -1,15 +1,8 @@
 package com.hebaiyi.www.katakuri.imageLoader;
 
-import android.widget.ImageView;
-
 public class Caramel {
 
     private static volatile Caramel singleton;
-    private Dispatcher mDispatcher;
-
-    private Caramel() {
-        mDispatcher = Dispatcher.getInstance();
-    }
 
     public static Caramel get() {
         if (singleton == null) {
@@ -23,18 +16,14 @@ public class Caramel {
         return singleton;
     }
 
+    /**
+     *  创建任务创建者
+     * @param uri 对应的地址
+     * @return 任务创建者对象
+     */
     public ActionCreator load(String uri) {
-        return null;
+        return new ActionCreator(uri);
     }
 
-    public void into(ImageView imageView) {
-
-    }
-
-
-    public Caramel displayImage(String uri, ImageView imageView) {
-        mDispatcher.performLoad(uri, imageView);
-        return this;
-    }
 
 }

@@ -1,39 +1,40 @@
 package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
-import android.widget.ImageView;
-
-import java.util.concurrent.Semaphore;
 
 public class ImageAction implements Runnable {
 
     private Dispatcher mDispatcher;
     private String mUri;
-    private ImageView mImageView;
+    private int mWidth;
+    private int mHeight;
+    private Bitmap mBitmap;
     private MemoryCache mCache;
-    private Semaphore mSemaphore;
 
-    ImageAction(String uri, ImageView imageView, MemoryCache cache, Semaphore semaphore) {
-        mImageView = imageView;
+    ImageAction(String uri, int width,int height, MemoryCache cache,Dispatcher dispatcher) {
         mUri = uri;
-        mDispatcher = Dispatcher.getInstance();
+        mDispatcher = dispatcher;
         mCache = cache;
-        mSemaphore = semaphore;
+        mWidth = width;
+        mHeight = height;
     }
 
     @Override
     public void run() {
-        // 获取宽高信息
-        int width = ImageUtil.getWidth(mImageView);
-        int height = ImageUtil.getHeight(mImageView);
         // 获取并且压缩图片
-        Bitmap bm = BitmapCompress.sampleCompression(mUri, width, height);
+        mBitmap = BitmapCompress.sampleCompression(mUri, mWidth, mHeight);
         // 添加到内存中
-        mCache.addBitmapToCache(mUri, bm);
-        // 分派任务
-        mDispatcher.performFinish(bm, mUri, mImageView);
-        // 释放信号量
-        mSemaphore.release();
+        mCache.addBitmapToCache(mUri, mBitmap);
+        // 任务完成
+        mDispatcher.performFinish(this);
+    }
+
+    String getUri(){
+        return mUri;
+    }
+
+    Bitmap getBitmap(){
+        return mBitmap;
     }
 
 }

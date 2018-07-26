@@ -1,11 +1,9 @@
 package com.hebaiyi.www.katakuri.imageLoader;
 
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -22,79 +20,52 @@ public class Dispatcher {
     private static volatile Dispatcher instance;
 
     private DispatcherHandler mDispatcherHandler;
-    private UIHandler mUIHandler;
-    private MemoryCache mMemoryCache;
+    private Handler mUIHandler;
     private ExecutorService mTreadPool;
-    private Type mType = Type.LIFO;
+    private Type mType;
     private LinkedList<Runnable> mTaskQueue;
     private Semaphore mTaskSemaphore;
 
-    public static Dispatcher getInstance() {
+    public static Dispatcher getInstance(Handler UIHandler, Type type) {
         if (instance == null) {
             synchronized (Dispatcher.class) {
                 if (instance == null) {
-                    instance = new Dispatcher();
+                    instance = new Dispatcher(UIHandler, type);
                 }
             }
         }
         return instance;
     }
 
-    private Dispatcher() {
+    private Dispatcher(Handler UIHandler, Type type) {
         // 初始化后台轮循线程
         DispatcherThread backgroundThread = new DispatcherThread();
         // 启动轮循线程
         backgroundThread.start();
         // 初始化后台工作handler
         mDispatcherHandler = new DispatcherHandler(backgroundThread.getLooper(), this);
-        // 创建内存缓存类
-        mMemoryCache = MemoryCache.getInstance();
         // 创建线程池
         mTreadPool = Executors.newFixedThreadPool(CPU_CORE_NUM + 1);
         // 创建队列
         mTaskQueue = new LinkedList<>();
         // 初始化执行的信号量
         mTaskSemaphore = new Semaphore(CPUUtil.obtainCPUCoreNum() + 1);
+        // 缓存UIHandler
+        mUIHandler = UIHandler;
+        // 记录调度情况
+        mType = type;
     }
 
     /**
-     * 供外界调用示意完成任务
+     * 供外界调用与任务执行完成
      *
-     * @param bm        对应的bitmap对象
-     * @param uri       加载地址
-     * @param imageView 相应的imageView对象
+     * @param action 对应的任务
      */
-    public void performFinish(Bitmap bm, String uri, ImageView imageView) {
+    public void performFinish(Runnable action) {
         Message message = Message.obtain();
-        message.what = FINISH_TASK;
-        ImageHolder holder = new ImageHolder();
-        holder.bitmap = bm;
-        holder.uri = uri;
-        holder.imageView = imageView;
-        message.obj = holder;
+        message.obj = action;
+        mDispatcherHandler.sendEmptyMessage(FINISH_TASK);
         mUIHandler.sendMessage(message);
-    }
-
-    /**
-     * 加载图片
-     *
-     * @param uri       对应本地地址
-     * @param imageView 对应的imageView
-     */
-    public void performLoad(final String uri, final ImageView imageView) {
-        imageView.setTag(uri);
-        if (mUIHandler == null) {
-            mUIHandler = new UIHandler();
-        }
-        Bitmap bm = mMemoryCache.getBitmapFromCache(uri);
-        if (bm != null) {
-            // 刷新bitmap
-            freshBitmap(bm, uri, imageView);
-        } else {
-            // 添加进队列并执行
-            ImageAction action = new ImageAction(uri, imageView, mMemoryCache, mTaskSemaphore);
-            addTask(action);
-        }
     }
 
     /**
@@ -102,7 +73,7 @@ public class Dispatcher {
      *
      * @param action 加载任务
      */
-    private void addTask(Runnable action) {
+    public void performExecute(Runnable action) {
         mTaskQueue.add(action);
         mDispatcherHandler.sendEmptyMessage(EXECUTE_TASK);
     }
@@ -118,15 +89,20 @@ public class Dispatcher {
         }
         if (mType == Type.FIFO) {
             return mTaskQueue.removeFirst();
+        } else {
+            throw new IllegalStateException("not exact method of scheduling");
         }
-        return null;
     }
 
     /**
      * 执行加载任务
      */
     private void executeTask() {
-        mTreadPool.execute(getTask());
+        Runnable action = getTask();
+        if (action == null) {
+            return;
+        }
+        mTreadPool.execute(action);
         try {
             mTaskSemaphore.acquire();
         } catch (InterruptedException e) {
@@ -134,18 +110,6 @@ public class Dispatcher {
         }
     }
 
-    /**
-     * 内部调用的加载完成方法
-     */
-    private void freshBitmap(Bitmap bm, String uri, ImageView imageView) {
-        Message message = Message.obtain();
-        ImageHolder holder = new ImageHolder();
-        holder.bitmap = bm;
-        holder.uri = uri;
-        holder.imageView = imageView;
-        message.obj = holder;
-        mUIHandler.sendMessage(message);
-    }
 
     private static class DispatcherHandler extends Handler {
 
@@ -160,19 +124,21 @@ public class Dispatcher {
         public void handleMessage(Message msg) {
             Dispatcher dispatcher = mDispatcher.get();
             super.handleMessage(msg);
-            // 添加进队列执行加载任务
-            dispatcher.executeTask();
+            switch (msg.what) {
+                case EXECUTE_TASK:
+                    // 添加进队列执行加载任务
+                    dispatcher.executeTask();
+                    break;
+                case FINISH_TASK:
+                    // 释放信号量
+                    dispatcher.mTaskSemaphore.release();
+                    break;
+            }
         }
     }
 
     public enum Type {
         FIFO, LIFO
-    }
-
-    private class ImageHolder {
-        String uri;
-        ImageView imageView;
-        Bitmap bitmap;
     }
 
 
@@ -182,22 +148,6 @@ public class Dispatcher {
             super("dispatcher-thread");
         }
 
-    }
-
-    private static class UIHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            // 获取设置图片所需的参数
-            ImageHolder holder = (ImageHolder) msg.obj;
-            Bitmap bm = holder.bitmap;
-            ImageView imageView = holder.imageView;
-            String uri = holder.uri;
-            // 设置图片
-            if (imageView.getTag().equals(uri)) {
-                imageView.setImageBitmap(bm);
-            }
-        }
     }
 
 

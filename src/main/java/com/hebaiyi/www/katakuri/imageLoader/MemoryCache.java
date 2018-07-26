@@ -28,7 +28,6 @@ public class MemoryCache {
         };
     }
 
-
     /**
      * 将图片资源加载到内存中
      *
