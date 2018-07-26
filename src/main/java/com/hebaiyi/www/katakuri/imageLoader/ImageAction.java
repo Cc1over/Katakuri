@@ -29,7 +29,7 @@ public class ImageAction implements Runnable {
         // 获取并且压缩图片
         Bitmap bm = BitmapCompress.sampleCompression(mUri, width, height);
         // 添加到内存中
-        mCache.addBitmapToCache(mUri,bm);
+        mCache.addBitmapToCache(mUri, bm);
         // 分派任务
         mDispatcher.performFinish(bm, mUri, mImageView);
         // 释放信号量

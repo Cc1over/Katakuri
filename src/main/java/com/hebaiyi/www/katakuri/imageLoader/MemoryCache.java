@@ -19,7 +19,7 @@ public class MemoryCache {
         // 获取最大可用内存
         int maxMemory = (int) Runtime.getRuntime().maxMemory();
         // 缓存区域的内存大小
-        int cacheSize = maxMemory / 8;
+        int cacheSize = maxMemory / 4;
         mLruCache = new LruCache<String, Bitmap>(cacheSize) {
             @Override
             protected int sizeOf(String key, Bitmap value) {

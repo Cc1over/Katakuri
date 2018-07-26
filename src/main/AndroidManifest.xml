@@ -2,8 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hebaiyi.www.katakuri">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application>
-        <activity android:name=".activity.KatakuriActivity"></activity>
+        <activity android:name=".activity.KatakuriActivity"
+            android:launchMode="singleTask">
+        </activity>
     </application>
 
 </manifest>

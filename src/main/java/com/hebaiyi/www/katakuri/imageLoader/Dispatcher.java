@@ -26,12 +26,12 @@ public class Dispatcher {
     private MemoryCache mMemoryCache;
     private ExecutorService mTreadPool;
     private Type mType = Type.LIFO;
-    private LinkedList<ImageAction> mTaskQueue;
+    private LinkedList<Runnable> mTaskQueue;
     private Semaphore mTaskSemaphore;
 
     public static Dispatcher getInstance() {
         if (instance == null) {
-            synchronized (instance) {
+            synchronized (Dispatcher.class) {
                 if (instance == null) {
                     instance = new Dispatcher();
                 }
@@ -72,7 +72,7 @@ public class Dispatcher {
         holder.uri = uri;
         holder.imageView = imageView;
         message.obj = holder;
-        mDispatcherHandler.sendMessage(message);
+        mUIHandler.sendMessage(message);
     }
 
     /**
@@ -92,7 +92,7 @@ public class Dispatcher {
             freshBitmap(bm, uri, imageView);
         } else {
             // 添加进队列并执行
-            ImageAction action = new ImageAction(uri,imageView,mMemoryCache,mTaskSemaphore);
+            ImageAction action = new ImageAction(uri, imageView, mMemoryCache, mTaskSemaphore);
             addTask(action);
         }
     }
@@ -102,7 +102,7 @@ public class Dispatcher {
      *
      * @param action 加载任务
      */
-    private void addTask(ImageAction action) {
+    private void addTask(Runnable action) {
         mTaskQueue.add(action);
         mDispatcherHandler.sendEmptyMessage(EXECUTE_TASK);
     }
@@ -112,12 +112,14 @@ public class Dispatcher {
      *
      * @return 加载任务
      */
-    private ImageAction getTask() {
+    private Runnable getTask() {
         if (mType == Type.LIFO) {
-            return mTaskQueue.removeFirst();
-        } else {
             return mTaskQueue.removeLast();
         }
+        if (mType == Type.FIFO) {
+            return mTaskQueue.removeFirst();
+        }
+        return null;
     }
 
     /**
@@ -130,13 +132,6 @@ public class Dispatcher {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 加载任务完成
-     */
-    private void finish(Message message) {
-        mUIHandler.sendMessage(message);
     }
 
     /**
@@ -165,16 +160,8 @@ public class Dispatcher {
         public void handleMessage(Message msg) {
             Dispatcher dispatcher = mDispatcher.get();
             super.handleMessage(msg);
-            switch (msg.what) {
-                case FINISH_TASK:
-                    // 完成加载任务
-                    dispatcher.finish(msg);
-                    break;
-                case EXECUTE_TASK:
-                    // 添加进队列执行加载任务
-                    dispatcher.executeTask();
-                    break;
-            }
+            // 添加进队列执行加载任务
+            dispatcher.executeTask();
         }
     }
 
