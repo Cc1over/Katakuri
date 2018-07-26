@@ -1,11 +1,7 @@
-package com.hebaiyi.www.katakuri.util;
+package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class BitmapCompress {
 

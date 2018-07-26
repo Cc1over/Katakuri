@@ -1,4 +1,4 @@
-package com.hebaiyi.www.katakuri.util;
+package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
 import android.util.LruCache;
@@ -7,7 +7,15 @@ public class MemoryCache {
 
     private LruCache<String, Bitmap> mLruCache;
 
-    public MemoryCache() {
+    private static class Singleton {
+        private static MemoryCache instance = new MemoryCache();
+    }
+
+    public static MemoryCache getInstance() {
+        return Singleton.instance;
+    }
+
+    private MemoryCache() {
         // 获取最大可用内存
         int maxMemory = (int) Runtime.getRuntime().maxMemory();
         // 缓存区域的内存大小

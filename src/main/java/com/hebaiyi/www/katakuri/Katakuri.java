@@ -45,9 +45,7 @@ public final class Katakuri {
     }
 
     public enum ImageType {
-
         PNG, JPEG, ALL
-
     }
 
 }
