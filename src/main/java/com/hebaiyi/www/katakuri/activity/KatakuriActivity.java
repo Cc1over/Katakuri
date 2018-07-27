@@ -35,7 +35,7 @@ public class KatakuriActivity extends BaseActivity {
     private Toolbar mTbTop;
     private KatakuriModel mModel;
     private SelectReceiver mReceiver;
-    private Button mBtn
+    private Button mBtnSure;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -44,6 +44,7 @@ public class KatakuriActivity extends BaseActivity {
         mRcvContent = findViewById(R.id.katakuri_rcv_content);
         mTbTop = findViewById(R.id.katakuri_tb_top);
         mModel = new KatakuriModel();
+        mBtnSure = findViewById(R.id.katakuri_btn_sure);
         // 设置状态栏颜色
         setStatusBarColor();
         // 初始化Toolbar

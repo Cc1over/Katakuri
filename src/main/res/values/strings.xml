@@ -2,6 +2,7 @@
     <string name="app_name">Katakuri</string>
 
     <!--KatakuriActivity模块-->
-    <item name="katakuri_tb_title"></item>
+    <string name="katakuri_tb_title">所有图片</string>
+    <string name="katakuri_btn_text">确定</string>
 
 </resources>

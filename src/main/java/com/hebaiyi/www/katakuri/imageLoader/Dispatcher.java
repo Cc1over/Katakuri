@@ -39,7 +39,7 @@ public class Dispatcher {
         // 创建队列
         mTaskQueue = Collections.synchronizedList(new LinkedList<Runnable>());
         // 初始化执行的信号量
-        mTaskSemaphore = new Semaphore(CPUUtil.obtainCPUCoreNum() + 1);
+        mTaskSemaphore = new Semaphore(CPU_CORE_NUM + 1);
         // 缓存UIHandler
         mUIHandler = handler;
         // 设置调度方式

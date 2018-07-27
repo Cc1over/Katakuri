@@ -16,14 +16,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:text="所有图片"
+            android:text="@string/katakuri_tb_title"
             android:textColor="@color/white"
             android:textSize="19sp"
             android:typeface="monospace" />
 
         <Button
-            android:text="确定"
+            android:text="@string/katakuri_btn_text"
             android:background="@null"
+            android:id="@+id/katakuri_btn_sure"
             android:layout_marginRight="5dp"
             android:textColor="@color/white"
             android:layout_gravity="right"
