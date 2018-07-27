@@ -3,6 +3,8 @@ package com.hebaiyi.www.katakuri.imageLoader;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import com.hebaiyi.www.katakuri.util.ViewUtil;
+
 public class ActionCreator {
 
     private MemoryCache mMemoryCache;
@@ -56,8 +58,8 @@ public class ActionCreator {
             imageView.setImageBitmap(bm);
         } else {
             // 获取宽高信息
-            mWidth = ImageUtil.getWidth(imageView);
-            mHeight = ImageUtil.getHeight(imageView);
+            mWidth = ViewUtil.getWidth(imageView);
+            mHeight = ViewUtil.getHeight(imageView);
             // 创建任务
             ImageAction action = new ImageAction(mDispatcher.getTaskSemaphore(),
                     imageView, mPath, mWidth, mHeight, mMemoryCache, mDispatcher);

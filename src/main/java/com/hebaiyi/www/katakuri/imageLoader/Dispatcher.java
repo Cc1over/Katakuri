@@ -5,8 +5,12 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
+import com.hebaiyi.www.katakuri.util.CPUUtil;
+
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -20,10 +24,10 @@ public class Dispatcher {
     private Handler mUIHandler;
     private ExecutorService mTreadPool;
     private Type mType;
-    private LinkedList<Runnable> mTaskQueue;
+    private volatile List<Runnable> mTaskQueue;
     private Semaphore mTaskSemaphore;
 
-     Dispatcher(Handler handler, Type type) {
+    Dispatcher(Handler handler, Type type) {
         // 初始化后台轮循线程
         DispatcherThread backgroundThread = new DispatcherThread();
         // 启动轮循线程
@@ -33,7 +37,7 @@ public class Dispatcher {
         // 创建线程池
         mTreadPool = Executors.newFixedThreadPool(CPU_CORE_NUM + 1);
         // 创建队列
-        mTaskQueue = new LinkedList<>();
+        mTaskQueue = Collections.synchronizedList(new LinkedList<Runnable>());
         // 初始化执行的信号量
         mTaskSemaphore = new Semaphore(CPUUtil.obtainCPUCoreNum() + 1);
         // 缓存UIHandler
@@ -70,16 +74,16 @@ public class Dispatcher {
      */
     private Runnable getTask() {
         if (mType == Type.LIFO) {
-            return mTaskQueue.removeLast();
+            return mTaskQueue.remove(mTaskQueue.size() - 1);
         }
         if (mType == Type.FIFO) {
-            return mTaskQueue.removeFirst();
+            return mTaskQueue.remove(0);
         } else {
             throw new IllegalStateException("not exact method of scheduling");
         }
     }
 
-    public Semaphore getTaskSemaphore(){
+    public Semaphore getTaskSemaphore() {
         return mTaskSemaphore;
     }
 
@@ -112,7 +116,7 @@ public class Dispatcher {
         @Override
         public void handleMessage(Message msg) {
             Dispatcher dispatcher = mDispatcher.get();
-            if(dispatcher==null){
+            if (dispatcher == null) {
                 return;
             }
             super.handleMessage(msg);

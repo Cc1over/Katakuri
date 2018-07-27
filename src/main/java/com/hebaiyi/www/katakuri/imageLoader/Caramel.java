@@ -1,8 +1,10 @@
 package com.hebaiyi.www.katakuri.imageLoader;
 
+import android.animation.ObjectAnimator;
 import android.graphics.Bitmap;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.ImageView;
 
 public class Caramel {
@@ -19,7 +21,7 @@ public class Caramel {
 
     private Caramel() {
         UIHandler handler = new UIHandler(Looper.getMainLooper());
-        mDispatcher = new Dispatcher(handler,Dispatcher.Type.LIFO);
+        mDispatcher = new Dispatcher(handler, Dispatcher.Type.LIFO);
     }
 
     /**
@@ -34,7 +36,7 @@ public class Caramel {
 
     private static class UIHandler extends android.os.Handler {
 
-        UIHandler(Looper looper){
+        UIHandler(Looper looper) {
             super(looper);
         }
 
@@ -49,6 +51,9 @@ public class Caramel {
             // 设置图片
             if (imageView.getTag().equals(uri)) {
                 imageView.setImageBitmap(bm);
+                ObjectAnimator.ofFloat(imageView, "alpha", 0.5F, 1F)
+                        .setDuration(250)
+                        .start();
             }
         }
     }

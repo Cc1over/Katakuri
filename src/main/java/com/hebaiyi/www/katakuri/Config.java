@@ -59,13 +59,13 @@ public final class Config {
      *  获取外部设定的图片加载引擎
      * @return 图片加载引擎
      */
-    public ImageEngine getImageEngin(){
+    public ImageEngine getImageEngine(){
         return mImageEngine;
     }
 
     /**
      *  获取缩略图的缩放大小
-     * @return
+     * @return 缩放大小
      */
     public float getThumbnailScale() {
         return thumbnailScale;

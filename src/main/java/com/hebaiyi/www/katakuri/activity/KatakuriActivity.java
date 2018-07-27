@@ -1,18 +1,13 @@
 package com.hebaiyi.www.katakuri.activity;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -23,24 +18,25 @@ import android.widget.Toast;
 
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.adapter.ImageAdapter;
+import com.hebaiyi.www.katakuri.model.KatakuriModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class KatakuriActivity extends AppCompatActivity {
+public class KatakuriActivity extends BaseActivity {
 
     private RecyclerView mRcvContent;
     private List<String> childPath = new ArrayList<>();
     private Toolbar mTbTop;
+    private KatakuriModel mModel;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView(Bundle savedInstanceState) {
         setContentView(R.layout.activity_katakuri);
         mRcvContent = findViewById(R.id.katakuri_rcv_content);
         mTbTop = findViewById(R.id.katakuri_tb_top);
+        mModel = new KatakuriModel();
         // 设置状态栏颜色
         setStatusBarColor();
         // 初始化Toolbar
@@ -49,6 +45,16 @@ public class KatakuriActivity extends AppCompatActivity {
         requestPermission();
         // 初始化列表
         initList();
+    }
+
+    @Override
+    protected void initVariables() {
+
+    }
+
+    @Override
+    protected void loadData() {
+
     }
 
     private void initToolbar() {
@@ -82,18 +88,7 @@ public class KatakuriActivity extends AppCompatActivity {
      * 扫描图片
      */
     private void scanPicture() {
-        Uri mImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        ContentResolver mContentResolver = KatakuriActivity.this.getContentResolver();
-        //只查询jpeg和png的图片
-        Cursor cursor = mContentResolver.query(mImageUri, null,
-                MediaStore.Images.Media.MIME_TYPE + "=? or "
-                        + MediaStore.Images.Media.MIME_TYPE + "=?",
-                new String[]{"image/jpeg", "image/png"}, MediaStore.Images.Media.DATE_MODIFIED);
-        while (cursor.moveToNext()) {
-            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            childPath.add(path);
-        }
-        Collections.reverse(childPath);
+        childPath = mModel.scanPicture(this);
     }
 
     /**

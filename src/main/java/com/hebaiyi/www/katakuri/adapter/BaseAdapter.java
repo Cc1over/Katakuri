@@ -30,10 +30,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         T t = mList.get(position);
         CommonViewHolder commHolder = (CommonViewHolder) holder;
         // 更新UI
-        renewListItem(commHolder, t);
+        renewListItem(commHolder, t, position);
     }
 
-    public List<T> getData(){
+    public List<T> getData() {
         return mList;
     }
 
@@ -47,6 +47,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         return super.getItemViewType(position);
     }
 
-    public abstract void renewListItem(CommonViewHolder viewHolder, T t);
+    public abstract void renewListItem(CommonViewHolder viewHolder, T t, int position);
 
 }

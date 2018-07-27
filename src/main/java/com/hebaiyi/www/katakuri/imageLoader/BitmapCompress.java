@@ -16,7 +16,6 @@ public class BitmapCompress {
         // 预加载
         BitmapFactory.decodeFile(path,options);
         // 计算采样值
-        Log.e("size",requestWidth+"      "+requestHeight);
         options.inSampleSize = calculateInSample(options, requestWidth, requestHeight);
         options.inJustDecodeBounds = false;
         // 真实加载

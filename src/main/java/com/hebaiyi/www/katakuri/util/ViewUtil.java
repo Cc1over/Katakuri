@@ -1,10 +1,13 @@
-package com.hebaiyi.www.katakuri.imageLoader;
+package com.hebaiyi.www.katakuri.util;
 
+import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.view.TouchDelegate;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-public class ImageUtil {
+public class ViewUtil {
 
     /**
      *  获取ImageView的宽度
@@ -46,6 +49,26 @@ public class ImageUtil {
             height = metrics.heightPixels;
         }
         return height;
+    }
+
+    public static void expandViewTouchDelegate(final View view, final int top,
+                                               final int bottom, final int left, final int right) {
+        ((View) view.getParent()).post(new Runnable() {
+            @Override
+            public void run() {
+                Rect bounds = new Rect();
+                view.setEnabled(true);
+                view.getHitRect(bounds);
+                bounds.top -= top;
+                bounds.bottom += bottom;
+                bounds.left -= left;
+                bounds.right += right;
+                TouchDelegate touchDelegate = new TouchDelegate(bounds, view);
+                if (View.class.isInstance(view.getParent())) {
+                    ((View) view.getParent()).setTouchDelegate(touchDelegate);
+                }
+            }
+        });
     }
 
 
