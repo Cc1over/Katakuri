@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.graphics.Bitmap;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.widget.ImageView;
 
 public class Caramel {

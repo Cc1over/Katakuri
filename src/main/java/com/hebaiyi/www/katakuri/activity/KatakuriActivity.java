@@ -1,6 +1,10 @@
 package com.hebaiyi.www.katakuri.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.hebaiyi.www.katakuri.R;
@@ -29,6 +34,8 @@ public class KatakuriActivity extends BaseActivity {
     private List<String> childPath = new ArrayList<>();
     private Toolbar mTbTop;
     private KatakuriModel mModel;
+    private SelectReceiver mReceiver;
+    private Button mBtn
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -49,7 +56,8 @@ public class KatakuriActivity extends BaseActivity {
 
     @Override
     protected void initVariables() {
-
+       // 注册广播
+        registerReceiver();
     }
 
     @Override
@@ -62,6 +70,24 @@ public class KatakuriActivity extends BaseActivity {
         setSupportActionBar(mTbTop);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+    }
+
+
+    /**
+     *  注册广播
+     */
+    private void registerReceiver(){
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.hebaiyi.www.katakuri.KatakuriActivity.freshButton");
+        mReceiver = new SelectReceiver();
+        registerReceiver(mReceiver,filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 注销广播
+        unregisterReceiver(mReceiver);
     }
 
     /**
@@ -123,6 +149,14 @@ public class KatakuriActivity extends BaseActivity {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(getResources().getColor(R.color.pink));
+    }
+
+    private class SelectReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+             String text = intent.getStringExtra("update_content");
+        }
     }
 
 }

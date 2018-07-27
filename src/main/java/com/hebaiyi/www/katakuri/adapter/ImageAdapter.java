@@ -1,7 +1,5 @@
 package com.hebaiyi.www.katakuri.adapter;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -12,7 +10,6 @@ import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
 import com.hebaiyi.www.katakuri.util.ViewUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAdapter extends BaseAdapter<String> {
@@ -29,6 +26,8 @@ public class ImageAdapter extends BaseAdapter<String> {
         mMaxSelection = Config.getInstance().getMaxSelectable();
         // 初始化状态标志容器
         mFlags = new SparseBooleanArray();
+        // 初始化状态容器
+        initSparseBooleanArray();
     }
 
     @Override
@@ -40,6 +39,21 @@ public class ImageAdapter extends BaseAdapter<String> {
         mEngine.loadThumbnailResize(100, R.drawable.list_item_iv_default, path, iv);
         // 对CheckBox进行处处理,防止错乱
         treatCheckBox(cb, position,iv);
+    }
+
+    /**
+     *  初始化状态容器
+     */
+    private void initSparseBooleanArray(){
+        // 获取数据
+        List<String> data = getData();
+        if(data==null){
+            throw new NullPointerException("data is not exist");
+        }
+        // 初始化
+        for(int i=0;i<data.size();i++){
+            mFlags.append(i,false);
+        }
     }
 
     /**
@@ -56,18 +70,19 @@ public class ImageAdapter extends BaseAdapter<String> {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                int pos = (int) compoundButton.getTag();
-                if (b) {
-                    mFlags.put(pos, true);
-//                    imageView.setAlpha(0.2F);
-                } else {
-                    mFlags.delete(pos);
-//                    imageView.setAlpha(1F);
-                }
+                mFlags.put(position,b);
+                if(b){
 
+                }else {
+
+                }
             }
         });
+        checkBox.setChecked(mFlags.get(position));
+
     }
+
+
 
 
 }
