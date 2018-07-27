@@ -6,6 +6,11 @@ import android.widget.ImageView;
 
 public class ImageUtil {
 
+    /**
+     *  获取ImageView的宽度
+     * @param imageView 对应的ImageView
+     * @return 宽度
+     */
     public static int getWidth(ImageView imageView) {
         DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
         ViewGroup.LayoutParams params = imageView.getLayoutParams();
@@ -22,6 +27,11 @@ public class ImageUtil {
         return width;
     }
 
+    /**
+     *  获取获取ImageView的高度
+     * @param imageView 对应的ImageView
+     * @return 高度
+     */
     public static int getHeight(ImageView imageView) {
         DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
         ViewGroup.LayoutParams params = imageView.getLayoutParams();

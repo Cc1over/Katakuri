@@ -25,11 +25,11 @@ public class Caramel {
     /**
      * 创建任务创建者
      *
-     * @param uri 对应的地址
+     * @param path 对应的地址
      * @return 任务创建者对象
      */
-    public ActionCreator load(String uri) {
-        return new ActionCreator(uri, mDispatcher);
+    public ActionCreator load(String path) {
+        return new ActionCreator(path, mDispatcher);
     }
 
     private static class UIHandler extends android.os.Handler {
@@ -44,7 +44,7 @@ public class Caramel {
             // 获取设置图片所需的参数
             ImageAction action = (ImageAction) msg.obj;
             Bitmap bm = action.getBitmap();
-            String uri = action.getUri();
+            String uri = action.getPath();
             ImageView imageView = action.getImageView();
             // 设置图片
             if (imageView.getTag().equals(uri)) {

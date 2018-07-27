@@ -5,49 +5,78 @@ import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.adapter.ImageAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class KatakuriActivity extends AppCompatActivity {
 
     private RecyclerView mRcvContent;
-    List<String> childPath = new ArrayList<>();
+    private List<String> childPath = new ArrayList<>();
+    private Toolbar mTbTop;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_katakuri);
-        mRcvContent =  findViewById(R.id.katakuri_rcv_content);
+        mRcvContent = findViewById(R.id.katakuri_rcv_content);
+        mTbTop = findViewById(R.id.katakuri_tb_top);
+        // 设置状态栏颜色
+        setStatusBarColor();
+        // 初始化Toolbar
+        initToolbar();
         // 请求权限
         requestPermission();
         // 初始化列表
         initList();
     }
 
+    private void initToolbar() {
+        mTbTop.setTitle("");
+        setSupportActionBar(mTbTop);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+    }
+
     /**
-     *  初始化列表
+     * 初始化列表
      */
-    private void initList(){
+    private void initList() {
         ImageAdapter adapter = new ImageAdapter(childPath);
-        GridLayoutManager manager = new GridLayoutManager(this,4);
+        GridLayoutManager manager = new GridLayoutManager(this, 4);
         mRcvContent.setLayoutManager(manager);
         mRcvContent.setAdapter(adapter);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
+    }
 
     /**
      * 扫描图片
@@ -64,7 +93,7 @@ public class KatakuriActivity extends AppCompatActivity {
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             childPath.add(path);
         }
-
+        Collections.reverse(childPath);
     }
 
     /**
@@ -93,4 +122,12 @@ public class KatakuriActivity extends AppCompatActivity {
                 }
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setStatusBarColor(){
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(getResources().getColor(R.color.pink));
+    }
+
 }

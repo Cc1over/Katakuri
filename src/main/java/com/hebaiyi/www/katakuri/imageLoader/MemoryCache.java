@@ -11,6 +11,10 @@ public class MemoryCache {
         private static MemoryCache instance = new MemoryCache();
     }
 
+    /**
+     *  获取内存储存容器
+     * @return 内存储存对象
+     */
     public static MemoryCache getInstance() {
         return Singleton.instance;
     }

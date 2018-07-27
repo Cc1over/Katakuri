@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -14,7 +13,6 @@ import java.util.concurrent.Semaphore;
 
 public class Dispatcher {
 
-    private static final int FINISH_TASK = 121;
     private static final int EXECUTE_TASK = 220;
     private static final int CPU_CORE_NUM = CPUUtil.obtainCPUCoreNum();
 

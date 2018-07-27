@@ -1,17 +1,17 @@
 package com.hebaiyi.www.katakuri;
 
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
-import com.hebaiyi.www.katakuri.engine.InnerImageEngine.InnerEngine;
+import com.hebaiyi.www.katakuri.engine.ImageEngineImp.InnerEngine;
 
 public final class Config {
 
     private static final int MAX_SELECTABLE = 9;
     private static final float THUMBNAIL_SCALE = 0.5f;
 
-    public int maxSelectable;
-    public ImageEngine mImageEngine;
-    public float thumbnailScale;
-    public Katakuri.ImageType imageType;
+    int maxSelectable;
+    ImageEngine mImageEngine;
+    float thumbnailScale;
+    Katakuri.ImageType imageType;
 
     private static class Singleton {
         private static final Config instance = new Config();
@@ -45,6 +45,30 @@ public final class Config {
         thumbnailScale = THUMBNAIL_SCALE;
         imageType = Katakuri.ImageType.ALL;
         mImageEngine = InnerEngine.getInstance();
+    }
+
+    /**
+     *  获取checkbox最大选择数量
+     * @return checkbox最大选择数量
+     */
+    public int getMaxSelectable(){
+        return maxSelectable;
+    }
+
+    /**
+     *  获取外部设定的图片加载引擎
+     * @return 图片加载引擎
+     */
+    public ImageEngine getImageEngin(){
+        return mImageEngine;
+    }
+
+    /**
+     *  获取缩略图的缩放大小
+     * @return
+     */
+    public float getThumbnailScale() {
+        return thumbnailScale;
     }
 
     private Config() {

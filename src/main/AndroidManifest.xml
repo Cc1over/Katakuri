@@ -6,6 +6,7 @@
 
     <application>
         <activity android:name=".activity.KatakuriActivity"
+            android:theme="@style/katakuri_theme"
             android:launchMode="singleTask">
         </activity>
     </application>

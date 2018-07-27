@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".activity.KatakuriActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/katakuri_tb_top"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/pink">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:text="所有图片"
+            android:textColor="@color/white"
+            android:textSize="19sp"
+            android:typeface="monospace" />
+
+        <Button
+            android:text="确定"
+            android:background="@null"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/white"
+            android:layout_gravity="right"
+            android:textSize="17sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </android.support.v7.widget.Toolbar>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/katakuri_rcv_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent"/>
 
 
 </LinearLayout>

@@ -2,23 +2,25 @@ package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class BitmapCompress {
 
     /**
      * Bitmap对象采样压缩
      */
-    public static Bitmap sampleCompression(String uri, int requestWidth, int requestHeight) {
+    public static Bitmap sampleCompression(String path, int requestWidth, int requestHeight) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         // 预加载
-        BitmapFactory.decodeFile(uri,options);
+        BitmapFactory.decodeFile(path,options);
         // 计算采样值
+        Log.e("size",requestWidth+"      "+requestHeight);
         options.inSampleSize = calculateInSample(options, requestWidth, requestHeight);
         options.inJustDecodeBounds = false;
         // 真实加载
-        return BitmapFactory.decodeFile(uri,options);
+        return BitmapFactory.decodeFile(path,options);
     }
 
     /**
