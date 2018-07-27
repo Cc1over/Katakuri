@@ -1,6 +1,9 @@
 package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
+import android.widget.ImageView;
+
+import java.util.concurrent.Semaphore;
 
 public class ImageAction implements Runnable {
 
@@ -10,13 +13,17 @@ public class ImageAction implements Runnable {
     private int mHeight;
     private Bitmap mBitmap;
     private MemoryCache mCache;
+    private ImageView mImageView;
+    private Semaphore mSemaphore;
 
-    ImageAction(String uri, int width,int height, MemoryCache cache,Dispatcher dispatcher) {
+    ImageAction(Semaphore semaphore, ImageView imageView, String uri, int width, int height, MemoryCache cache, Dispatcher dispatcher) {
         mUri = uri;
         mDispatcher = dispatcher;
         mCache = cache;
         mWidth = width;
         mHeight = height;
+        mImageView = imageView;
+        mSemaphore = semaphore;
     }
 
     @Override
@@ -27,14 +34,21 @@ public class ImageAction implements Runnable {
         mCache.addBitmapToCache(mUri, mBitmap);
         // 任务完成
         mDispatcher.performFinish(this);
+        // 释放信号量
+        mSemaphore.release();
     }
 
-    String getUri(){
+    String getUri() {
         return mUri;
     }
 
-    Bitmap getBitmap(){
+    Bitmap getBitmap() {
         return mBitmap;
     }
+
+    ImageView getImageView(){
+        return mImageView;
+    }
+
 
 }

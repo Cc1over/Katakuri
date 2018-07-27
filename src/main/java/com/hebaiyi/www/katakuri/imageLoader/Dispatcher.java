@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -17,8 +18,6 @@ public class Dispatcher {
     private static final int EXECUTE_TASK = 220;
     private static final int CPU_CORE_NUM = CPUUtil.obtainCPUCoreNum();
 
-    private static volatile Dispatcher instance;
-
     private DispatcherHandler mDispatcherHandler;
     private Handler mUIHandler;
     private ExecutorService mTreadPool;
@@ -26,18 +25,7 @@ public class Dispatcher {
     private LinkedList<Runnable> mTaskQueue;
     private Semaphore mTaskSemaphore;
 
-    public static Dispatcher getInstance(Handler UIHandler, Type type) {
-        if (instance == null) {
-            synchronized (Dispatcher.class) {
-                if (instance == null) {
-                    instance = new Dispatcher(UIHandler, type);
-                }
-            }
-        }
-        return instance;
-    }
-
-    private Dispatcher(Handler UIHandler, Type type) {
+     Dispatcher(Handler handler, Type type) {
         // 初始化后台轮循线程
         DispatcherThread backgroundThread = new DispatcherThread();
         // 启动轮循线程
@@ -51,8 +39,8 @@ public class Dispatcher {
         // 初始化执行的信号量
         mTaskSemaphore = new Semaphore(CPUUtil.obtainCPUCoreNum() + 1);
         // 缓存UIHandler
-        mUIHandler = UIHandler;
-        // 记录调度情况
+        mUIHandler = handler;
+        // 设置调度方式
         mType = type;
     }
 
@@ -64,7 +52,6 @@ public class Dispatcher {
     public void performFinish(Runnable action) {
         Message message = Message.obtain();
         message.obj = action;
-        mDispatcherHandler.sendEmptyMessage(FINISH_TASK);
         mUIHandler.sendMessage(message);
     }
 
@@ -92,6 +79,10 @@ public class Dispatcher {
         } else {
             throw new IllegalStateException("not exact method of scheduling");
         }
+    }
+
+    public Semaphore getTaskSemaphore(){
+        return mTaskSemaphore;
     }
 
     /**
@@ -123,15 +114,14 @@ public class Dispatcher {
         @Override
         public void handleMessage(Message msg) {
             Dispatcher dispatcher = mDispatcher.get();
+            if(dispatcher==null){
+                return;
+            }
             super.handleMessage(msg);
             switch (msg.what) {
                 case EXECUTE_TASK:
                     // 添加进队列执行加载任务
                     dispatcher.executeTask();
-                    break;
-                case FINISH_TASK:
-                    // 释放信号量
-                    dispatcher.mTaskSemaphore.release();
                     break;
             }
         }
@@ -141,7 +131,6 @@ public class Dispatcher {
         FIFO, LIFO
     }
 
-
     private static class DispatcherThread extends HandlerThread {
 
         DispatcherThread() {
@@ -149,6 +138,5 @@ public class Dispatcher {
         }
 
     }
-
 
 }
