@@ -93,6 +93,10 @@ public class Dispatcher {
         }
     }
 
+    /**
+     *  外界调用于释放信号量
+     * @return 信号量
+     */
     public Semaphore getTaskSemaphore() {
         return mTaskSemaphore;
     }

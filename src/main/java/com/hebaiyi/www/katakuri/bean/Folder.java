@@ -1,19 +1,21 @@
 package com.hebaiyi.www.katakuri.bean;
 
+import java.util.List;
+
 public class Folder {
 
     private String folderName;
     private int imageNum;
-    private String firstImageUri;
+    private String firstImagePath;
 
     public Folder(){
 
     }
 
-    public Folder(String folderName, int imageNum, String firstImageUri) {
+    public Folder(String folderName, int imageNum, String firstImagePath) {
         this.folderName = folderName;
         this.imageNum = imageNum;
-        this.firstImageUri = firstImageUri;
+        this.firstImagePath = firstImagePath;
     }
 
     public String getFolderName() {
@@ -32,11 +34,12 @@ public class Folder {
         this.imageNum = imageNum;
     }
 
-    public String getFirstImageUri() {
-        return firstImageUri;
+    public void setFirstImagePath(String firstImagePath) {
+        this.firstImagePath = firstImagePath;
     }
 
-    public void setFirstImageUri(String firstImageUri) {
-        this.firstImageUri = firstImageUri;
+    public String getFirstImagePath() {
+        return firstImagePath;
     }
+
 }

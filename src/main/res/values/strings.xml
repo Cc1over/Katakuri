@@ -3,6 +3,7 @@
 
     <!--KatakuriActivity模块-->
     <string name="katakuri_tb_title">所有图片</string>
-    <string name="katakuri_btn_text">确定</string>
+    <string name="katakuri_btn_sure">确定</string>
+    <string name="katakuri_btn_per_view">预览</string>
 
 </resources>

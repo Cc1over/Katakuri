@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.util.SparseBooleanArray;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -122,6 +123,15 @@ public class ImageAdapter extends BaseAdapter<String> {
         checkBox.setChecked(mFlags.get(position));
     }
 
+    private void registerImageListener(ImageView imageView){
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
     /**
      * CheckBox点击点击后触发的事件
      */
@@ -170,25 +180,9 @@ public class ImageAdapter extends BaseAdapter<String> {
      */
     private void postButtonChange() {
         Intent intent = new Intent();
-        String text = createButtonText();
-        intent.putExtra("update_content", text);
+        intent.putExtra("curr_num", mNotSelection);
         intent.setAction("com.hebaiyi.www.katakuri.KatakuriActivity.freshButton");
         mContext.sendBroadcast(intent);
-    }
-
-    /**
-     * 构建按钮文字内容
-     *
-     * @return 文字内容
-     */
-    private String createButtonText() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("确定").append("(").append(mNotSelection).append("/").append(mMaxSelection).append(")");
-        if (mNotSelection != 0) {
-            return builder.toString();
-        } else {
-            return "确定";
-        }
     }
 
     /**

@@ -5,10 +5,11 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application>
-        <activity android:name=".activity.KatakuriActivity"
-            android:theme="@style/katakuri_theme"
-            android:launchMode="singleTask">
-        </activity>
+        <activity
+            android:name=".activity.KatakuriActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/katakuri_theme"></activity>
+        <activity android:name=".adapter.PerViewActivity"></activity>
     </application>
 
 </manifest>
