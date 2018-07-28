@@ -12,7 +12,7 @@ import java.util.List;
 
 public class KatakuriModel {
 
-    public List<String> scanPicture(Context context){
+    public List<String> scanAllPicture(Context context) {
         List<String> childPath = new ArrayList<>();
         Uri mImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver mContentResolver = context.getContentResolver();
@@ -27,6 +27,14 @@ public class KatakuriModel {
         }
         Collections.reverse(childPath);
         return childPath;
+    }
+
+    public List<String> scanPNGPicture(Context context){
+       throw new NoSuchMethodError("no yet implements");
+    }
+
+    public List<String> scanJPGPicture(Context context){
+        throw new NoSuchMethodError("no yet implements");
     }
 
 

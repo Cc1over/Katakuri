@@ -115,7 +115,7 @@ public class KatakuriActivity extends BaseActivity {
      * 扫描图片
      */
     private void scanPicture() {
-        childPath = mModel.scanPicture(this);
+        childPath = mModel.scanAllPicture(this);
     }
 
     /**

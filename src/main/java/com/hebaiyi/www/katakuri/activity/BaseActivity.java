@@ -3,6 +3,8 @@ package com.hebaiyi.www.katakuri.activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.hebaiyi.www.katakuri.adapter.ImageAdapter;
+
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
@@ -19,5 +21,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void initView(Bundle savedInstanceState);
     protected abstract void initVariables();
     protected abstract void loadData();
+
+
 
 }

@@ -2,6 +2,7 @@ package com.hebaiyi.www.katakuri.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
+import com.hebaiyi.www.katakuri.imageLoader.Caramel;
 import com.hebaiyi.www.katakuri.util.ViewUtil;
 
 import java.util.List;
@@ -25,6 +27,7 @@ public class ImageAdapter extends BaseAdapter<String> {
     private int mNotSelection;
     private SparseBooleanArray mFlags;
     private Context mContext;
+    private Caramel.Filter mFilter;
 
     public ImageAdapter(Context context, List<String> list) {
         super(list, R.layout.katakuri_list_item);
@@ -38,6 +41,8 @@ public class ImageAdapter extends BaseAdapter<String> {
         mFlags = new SparseBooleanArray();
         // 初始化状态容器
         initSparseBooleanArray();
+        // 初始化过滤器
+        initFilter();
     }
 
     @Override
@@ -46,7 +51,13 @@ public class ImageAdapter extends BaseAdapter<String> {
         ImageView iv = viewHolder.getView(R.id.list_item_iv_picture);
         CheckBox cb = viewHolder.getView(R.id.list_item_cb_select);
         // 加载图片
-        mEngine.loadThumbnailResize(100, R.drawable.list_item_iv_default, path, iv);
+        if(mFlags.get(position)){
+            // 加载图片添加过滤器
+            mEngine.loadThumbnailFilter(R.drawable.list_item_iv_default, path, iv, mFilter);
+        }else{
+            // 加载图片不添加过滤器
+            mEngine.loadThumbnail(R.drawable.list_item_iv_default, path, iv);
+        }
         // 对CheckBox进行处处理,防止错乱
         treatCheckBox(cb, position, iv);
     }
@@ -67,11 +78,31 @@ public class ImageAdapter extends BaseAdapter<String> {
     }
 
     /**
+     *  初始化过滤器
+     */
+    private void initFilter(){
+        mFilter = new Caramel.Filter() {
+            @Override
+            public Bitmap bitmapFilter(Bitmap bitmap) {
+                return bitmap;
+            }
+
+            @Override
+            public void imageFilter(ImageView imageView) {
+                // 让imageView变暗
+               darkImageView(imageView);
+            }
+        };
+    }
+
+    /**
      * 处理对应的CheckBox，防止复用造成的错乱
      *
      * @param checkBox 相应的checkBox
      */
     private void treatCheckBox(final CheckBox checkBox, final int position, final ImageView imageView) {
+        // 设置标签
+        checkBox.setTag(position);
         // 扩大点击范围
         ViewUtil.expandViewTouchDelegate(checkBox, 60, 60, 60, 60);
         // 设置监听
@@ -80,25 +111,24 @@ public class ImageAdapter extends BaseAdapter<String> {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
                     // checkbox点击
-                    isCheck(position, checkBox,imageView);
+                    isCheck(position, checkBox, imageView);
                 } else {
                     // checkbox点击取消
-                    noCheck(position,imageView);
+                    noCheck(position, imageView);
                 }
             }
         });
+        // 设置状态
         checkBox.setChecked(mFlags.get(position));
     }
 
     /**
      * CheckBox点击点击后触发的事件
      */
-    private void isCheck(int position, CheckBox checkBox,ImageView imageView) {
+    private void isCheck(int position, CheckBox checkBox, ImageView imageView) {
         if (mNotSelection < mMaxSelection) {
             // 恢复状态时调用直接退出
             if (mFlags.get(position)) {
-                // 恢复状态变暗
-                darkImageView(imageView);
                 return;
             }
             // 保存状态
@@ -122,7 +152,7 @@ public class ImageAdapter extends BaseAdapter<String> {
     /**
      * checkBox取消点击后触发事件
      */
-    private void noCheck(int position,ImageView imageView) {
+    private void noCheck(int position, ImageView imageView) {
         if (positionInSelect(position)) {
             // 减少当前选择数
             mNotSelection--;
@@ -162,28 +192,28 @@ public class ImageAdapter extends BaseAdapter<String> {
     }
 
     /**
-     *  让相应的ImageView变暗淡
+     * 让相应的ImageView变暗淡
      */
-    private void darkImageView(ImageView imageView){
+    private void darkImageView(ImageView imageView) {
         Drawable drawable = imageView.getDrawable();
-        if(drawable==null){
+        if (drawable == null) {
             drawable = imageView.getBackground();
         }
-        if(drawable!=null){
+        if (drawable != null) {
             // 添加滤镜
-            drawable.setColorFilter(Color.GRAY,PorterDuff.Mode.MULTIPLY);
+            drawable.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         }
     }
 
     /**
-     *  让相应的ImageView恢复
+     * 让相应的ImageView恢复
      */
-    private void lightImageView(ImageView imageView){
+    private void lightImageView(ImageView imageView) {
         Drawable drawable = imageView.getDrawable();
-        if(drawable==null){
+        if (drawable == null) {
             drawable = imageView.getBackground();
         }
-        if(drawable!=null){
+        if (drawable != null) {
             // 清除滤镜
             drawable.clearColorFilter();
         }
@@ -201,5 +231,5 @@ public class ImageAdapter extends BaseAdapter<String> {
         return false;
     }
 
-
 }
+

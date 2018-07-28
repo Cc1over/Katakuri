@@ -54,6 +54,16 @@ public class Dispatcher {
     public void performFinish(Runnable action) {
         Message message = Message.obtain();
         message.obj = action;
+        message.what = Caramel.FINISH_IN_LOADING;
+        mUIHandler.sendMessage(message);
+    }
+
+    /**
+     *  供外界调用与任务执行完成
+     */
+    public void performFinish(){
+        Message message = Message.obtain();
+        message.what = Caramel.FINISH_IN_CACHE;
         mUIHandler.sendMessage(message);
     }
 

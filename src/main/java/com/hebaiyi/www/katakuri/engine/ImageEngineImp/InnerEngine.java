@@ -3,6 +3,7 @@ package com.hebaiyi.www.katakuri.engine.ImageEngineImp;
 import android.widget.ImageView;
 
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
+import com.hebaiyi.www.katakuri.imageLoader.ActionCreator;
 import com.hebaiyi.www.katakuri.imageLoader.Caramel;
 
 public class InnerEngine implements ImageEngine {
@@ -38,6 +39,16 @@ public class InnerEngine implements ImageEngine {
         Caramel.get()
                 .load(path)
                 .into(imageView);
+    }
+
+    @Override
+    public void loadThumbnailFilter(int placeholderRes, String path, ImageView imageView, Caramel.Filter filter) {
+        Caramel.get()
+                .load(path)
+                .filter(filter)
+                .placeholder(placeholderRes)
+                .into(imageView);
+
     }
 
 }
