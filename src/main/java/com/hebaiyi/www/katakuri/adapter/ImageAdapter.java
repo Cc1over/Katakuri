@@ -1,9 +1,15 @@
 package com.hebaiyi.www.katakuri.adapter;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.util.SparseBooleanArray;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
@@ -15,11 +21,15 @@ import java.util.List;
 public class ImageAdapter extends BaseAdapter<String> {
 
     private ImageEngine mEngine;
-    private int mMaxSelection;
+    private final int mMaxSelection;
+    private int mNotSelection;
     private SparseBooleanArray mFlags;
+    private Context mContext;
 
-    public ImageAdapter(List<String> list) {
+    public ImageAdapter(Context context, List<String> list) {
         super(list, R.layout.katakuri_list_item);
+        // 获取上下文
+        mContext = context;
         // 获取图片加载引擎
         mEngine = Config.getInstance().getImageEngine();
         // 获取所需数据
@@ -38,21 +48,21 @@ public class ImageAdapter extends BaseAdapter<String> {
         // 加载图片
         mEngine.loadThumbnailResize(100, R.drawable.list_item_iv_default, path, iv);
         // 对CheckBox进行处处理,防止错乱
-        treatCheckBox(cb, position,iv);
+        treatCheckBox(cb, position, iv);
     }
 
     /**
-     *  初始化状态容器
+     * 初始化状态容器
      */
-    private void initSparseBooleanArray(){
+    private void initSparseBooleanArray() {
         // 获取数据
         List<String> data = getData();
-        if(data==null){
+        if (data == null) {
             throw new NullPointerException("data is not exist");
         }
         // 初始化
-        for(int i=0;i<data.size();i++){
-            mFlags.append(i,false);
+        for (int i = 0; i < data.size(); i++) {
+            mFlags.append(i, false);
         }
     }
 
@@ -61,28 +71,135 @@ public class ImageAdapter extends BaseAdapter<String> {
      *
      * @param checkBox 相应的checkBox
      */
-    private void treatCheckBox(CheckBox checkBox, final int position, final ImageView imageView) {
+    private void treatCheckBox(final CheckBox checkBox, final int position, final ImageView imageView) {
         // 扩大点击范围
         ViewUtil.expandViewTouchDelegate(checkBox, 60, 60, 60, 60);
-        // 设置标记
-        checkBox.setTag(position);
         // 设置监听
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                mFlags.put(position,b);
-                if(b){
-
-                }else {
-
+                if (b) {
+                    // checkbox点击
+                    isCheck(position, checkBox,imageView);
+                } else {
+                    // checkbox点击取消
+                    noCheck(position,imageView);
                 }
             }
         });
         checkBox.setChecked(mFlags.get(position));
-
     }
 
+    /**
+     * CheckBox点击点击后触发的事件
+     */
+    private void isCheck(int position, CheckBox checkBox,ImageView imageView) {
+        if (mNotSelection < mMaxSelection) {
+            // 恢复状态时调用直接退出
+            if (mFlags.get(position)) {
+                // 恢复状态变暗
+                darkImageView(imageView);
+                return;
+            }
+            // 保存状态
+            mFlags.put(position, true);
+            // 增加当前选择数
+            mNotSelection++;
+            // 让ImageView变暗
+            darkImageView(imageView);
+            // 通知按钮改变现实内容
+            postButtonChange();
+        } else {
+            if (!positionInSelect(position)) {
+                // 保存状态
+                mFlags.put(position, false);
+                checkBox.setChecked(false);
+                Toast.makeText(mContext, "最多只能选择" + mMaxSelection + "项", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
+    /**
+     * checkBox取消点击后触发事件
+     */
+    private void noCheck(int position,ImageView imageView) {
+        if (positionInSelect(position)) {
+            // 减少当前选择数
+            mNotSelection--;
+            // 保存状态
+            mFlags.put(position, false);
+            // 让ImageView恢复
+            lightImageView(imageView);
+            // 通知按钮更改内容
+            postButtonChange();
+        }
+    }
+
+    /**
+     * 广播通知主界面按钮改变
+     */
+    private void postButtonChange() {
+        Intent intent = new Intent();
+        String text = createButtonText();
+        intent.putExtra("update_content", text);
+        intent.setAction("com.hebaiyi.www.katakuri.KatakuriActivity.freshButton");
+        mContext.sendBroadcast(intent);
+    }
+
+    /**
+     * 构建按钮文字内容
+     *
+     * @return 文字内容
+     */
+    private String createButtonText() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("确定").append("(").append(mNotSelection).append("/").append(mMaxSelection).append(")");
+        if (mNotSelection != 0) {
+            return builder.toString();
+        } else {
+            return "确定";
+        }
+    }
+
+    /**
+     *  让相应的ImageView变暗淡
+     */
+    private void darkImageView(ImageView imageView){
+        Drawable drawable = imageView.getDrawable();
+        if(drawable==null){
+            drawable = imageView.getBackground();
+        }
+        if(drawable!=null){
+            // 添加滤镜
+            drawable.setColorFilter(Color.GRAY,PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    /**
+     *  让相应的ImageView恢复
+     */
+    private void lightImageView(ImageView imageView){
+        Drawable drawable = imageView.getDrawable();
+        if(drawable==null){
+            drawable = imageView.getBackground();
+        }
+        if(drawable!=null){
+            // 清除滤镜
+            drawable.clearColorFilter();
+        }
+    }
+
+    /**
+     * 判断位置的状态
+     */
+    private boolean positionInSelect(int position) {
+        for (int i = 0; i < mFlags.size(); i++) {
+            if (mFlags.get(i) && i == position) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 }

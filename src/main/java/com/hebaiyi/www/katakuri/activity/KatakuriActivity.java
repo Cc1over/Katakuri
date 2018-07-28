@@ -95,7 +95,7 @@ public class KatakuriActivity extends BaseActivity {
      * 初始化列表
      */
     private void initList() {
-        ImageAdapter adapter = new ImageAdapter(childPath);
+        ImageAdapter adapter = new ImageAdapter(this,childPath);
         GridLayoutManager manager = new GridLayoutManager(this, 4);
         mRcvContent.setLayoutManager(manager);
         mRcvContent.setAdapter(adapter);
@@ -157,6 +157,7 @@ public class KatakuriActivity extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
              String text = intent.getStringExtra("update_content");
+             mBtnSure.setText(text);
         }
     }
 
