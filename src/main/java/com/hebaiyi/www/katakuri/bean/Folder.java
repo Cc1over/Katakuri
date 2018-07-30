@@ -1,14 +1,15 @@
 package com.hebaiyi.www.katakuri.bean;
 
-import java.util.List;
+import android.util.Log;
 
 public class Folder {
 
+    private String dir;
     private String folderName;
     private int imageNum;
     private String firstImagePath;
 
-    public Folder(){
+    public Folder() {
 
     }
 
@@ -20,6 +21,16 @@ public class Folder {
 
     public String getFolderName() {
         return folderName;
+    }
+
+    public String getDir() {
+        return dir;
+    }
+
+    public void setDir(String dir) {
+        this.dir = dir;
+        int lastIndexOf = this.dir.lastIndexOf("/");
+        this.folderName = this.dir.substring(lastIndexOf + 1);
     }
 
     public void setFolderName(String folderName) {

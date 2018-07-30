@@ -2,7 +2,6 @@ package com.hebaiyi.www.katakuri.engine;
 
 import android.widget.ImageView;
 
-import com.hebaiyi.www.katakuri.imageLoader.ActionCreator;
 import com.hebaiyi.www.katakuri.imageLoader.Caramel;
 
 public interface ImageEngine {

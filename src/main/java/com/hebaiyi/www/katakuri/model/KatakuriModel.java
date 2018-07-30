@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import com.hebaiyi.www.katakuri.Config;
+import com.hebaiyi.www.katakuri.Katakuri;
 import com.hebaiyi.www.katakuri.bean.Folder;
 
 import java.io.File;
@@ -22,22 +24,18 @@ public class KatakuriModel {
     private static int SELECT_PNG = 11;
     private static int SELECT_ALL = 23;
     private static int SELECT_JPEG = 33;
+    private int mSelection;
 
-    public List<String> scanAllPicture(Context context) {
-        List<String> childPath = new ArrayList<>();
-        Uri mImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        ContentResolver mContentResolver = context.getContentResolver();
-        //只查询jpeg和png的图片
-        Cursor cursor = mContentResolver.query(mImageUri, null,
-                MediaStore.Images.Media.MIME_TYPE + "=? or "
-                        + MediaStore.Images.Media.MIME_TYPE + "=?",
-                new String[]{"image/jpeg", "image/png"}, MediaStore.Images.Media.DATE_MODIFIED);
-        while (cursor.moveToNext()) {
-            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            childPath.add(path);
+    public KatakuriModel() {
+        if (Config.getInstance().getImageType() == Katakuri.ImageType.ALL) {
+            mSelection = SELECT_ALL;
         }
-        Collections.reverse(childPath);
-        return childPath;
+        if (Config.getInstance().getImageType() == Katakuri.ImageType.PNG) {
+            mSelection = SELECT_PNG;
+        }
+        if (Config.getInstance().getImageType() == Katakuri.ImageType.JPEG) {
+            mSelection = SELECT_JPEG;
+        }
     }
 
     /**
@@ -48,7 +46,7 @@ public class KatakuriModel {
      */
     public void scan(final Context context, final KatakuriModelCallback callback) {
         if (callback == null) {
-            throw new NullPointerException("callback must no be null");
+            throw new NullPointerException("KatakuriModelCallback must no be null");
         }
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // 失败回调
@@ -58,35 +56,36 @@ public class KatakuriModel {
             @Override
             public void run() {
                 // 查询cursor
-                Cursor cursor = getScanCursor(context, SELECT_ALL);
+                Cursor cursor = getScanCursor(context, mSelection);
                 if (cursor == null) {
                     callback.onFail();
                     return;
                 }
                 // 创建容器
                 List<Folder> folderList = new ArrayList<>();
+                folderList.add(getFirstItem());
                 List<String> paths = new ArrayList<>();
+                Set<String> directory = new HashSet<>();
                 // 遍历地址获取文件夹
                 while (cursor.moveToNext()) {
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
                     // 保存子地址
                     paths.add(path);
                     File parentFile = new File(path).getParentFile();
-                    String parentPath = parentFile.getAbsolutePath();
                     // 对文件夹判空
                     if (parentFile == null) {
                         continue;
                     }
-                    // 数据封装
-                    Set<String> directory = new HashSet<>();
+                    String parentPath = parentFile.getAbsolutePath();
                     Folder folder;
                     // 检查该文件夹是否遍历过
                     if (directory.contains(parentPath)) {
                         continue;
                     } else {
                         directory.add(parentPath);
+                        // 数据封装
                         folder = new Folder();
-                        folder.setFolderName(parentPath);
+                        folder.setDir(parentPath);
                         folder.setFirstImagePath(path);
                     }
                     // 判空处理
@@ -100,11 +99,23 @@ public class KatakuriModel {
                     // 添加到容器中
                     folderList.add(folder);
                 }
+                folderList.get(0).setImageNum(paths.size());
+                folderList.get(0).setFirstImagePath(paths.get(paths.size()-1));
                 // 扫描完成
+                Collections.reverse(paths);
                 callback.onSuccess(folderList, paths);
                 cursor.close();
             }
         }).start();
+    }
+
+    /**
+     * 返回首项目
+     */
+    private Folder getFirstItem(){
+        Folder folder = new Folder();
+        folder.setFolderName("全部图片");
+        return folder;
     }
 
     /**
@@ -117,9 +128,28 @@ public class KatakuriModel {
         return parentFile.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png");
+                return getFilter(name);
             }
         }).length;
+    }
+
+    /**
+     * 获取文件查找的条件
+     *
+     * @param name 父目录名
+     * @return 是否存在
+     */
+    private boolean getFilter(String name) {
+        if (mSelection == SELECT_ALL) {
+            return name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png");
+        }
+        if (mSelection == SELECT_JPEG) {
+            return name.endsWith(".jpg") || name.endsWith(".jpeg");
+        }
+        if (mSelection == SELECT_PNG) {
+            return name.endsWith(".png");
+        }
+        throw new IllegalArgumentException("selectType error");
     }
 
     /**
@@ -138,6 +168,26 @@ public class KatakuriModel {
         ContentResolver mContentResolver = context.getContentResolver();
         return mContentResolver.query(mImageUri, null,
                 selection, selectionArgs, MediaStore.Images.Media.DATE_MODIFIED);
+    }
+
+    /**
+     * 获取文件夹中所有的地址
+     *
+     * @return 地址列表
+     */
+    public List<String> getPaths(String dirPath) {
+        File file = new File(dirPath);
+        String[] names = file.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return getFilter(name);
+            }
+        });
+        List<String> paths = new ArrayList<>();
+        for (int i = 0; i < names.length; i++) {
+            paths.add(i, dirPath + "/" + names[i]);
+        }
+        return paths;
     }
 
     /**
@@ -176,13 +226,6 @@ public class KatakuriModel {
         throw new IllegalArgumentException("selectType error");
     }
 
-    public List<String> scanPNGPicture(Context context) {
-        throw new NoSuchMethodError("no yet implements");
-    }
-
-    public List<String> scanJPGPicture(Context context) {
-        throw new NoSuchMethodError("no yet implements");
-    }
 
     public interface KatakuriModelCallback {
 

@@ -19,6 +19,7 @@ import com.hebaiyi.www.katakuri.engine.ImageEngine;
 import com.hebaiyi.www.katakuri.imageLoader.Caramel;
 import com.hebaiyi.www.katakuri.util.ViewUtil;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class ImageAdapter extends BaseAdapter<String> {
@@ -26,7 +27,8 @@ public class ImageAdapter extends BaseAdapter<String> {
     private ImageEngine mEngine;
     private final int mMaxSelection;
     private int mNotSelection;
-    private SparseBooleanArray mFlags;
+//    private SparseBooleanArray mFlags;
+    private HashMap<String,Boolean> mFlags;
     private Context mContext;
     private Caramel.Filter mFilter;
 
@@ -39,7 +41,8 @@ public class ImageAdapter extends BaseAdapter<String> {
         // 获取所需数据
         mMaxSelection = Config.getInstance().getMaxSelectable();
         // 初始化状态标志容器
-        mFlags = new SparseBooleanArray();
+//        mFlags = new SparseBooleanArray();
+        mFlags = new HashMap<>();
         // 初始化状态容器
         initSparseBooleanArray();
         // 初始化过滤器

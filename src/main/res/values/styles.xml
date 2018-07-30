@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base application theme. -->
     <style name="katakuri_theme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
@@ -8,4 +7,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="anim_katakuri_popup">
+        <item name="android:windowEnterAnimation">@anim/katakuri_popup_off</item>
+        <item name="android:windowExitAnimation">@anim/katakuri_popup_in</item>
+    </style>
 </resources>

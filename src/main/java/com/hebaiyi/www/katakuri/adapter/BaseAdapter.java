@@ -11,9 +11,12 @@ import java.util.List;
 public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
 
     private List<T> mList;
+    private List<T> mCopyList;
     private int mLayoutId;
+    private ItemClickListener mListener;
 
     public BaseAdapter(List<T> list, int layoutId) {
+        mCopyList = list;
         mList = list;
         mLayoutId = layoutId;
     }
@@ -26,9 +29,21 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+        // 获取元素
         T t = mList.get(position);
+        // 获取viewHolder
         CommonViewHolder commHolder = (CommonViewHolder) holder;
+        // 设置监听
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onItemClick(position);
+                }
+
+            }
+        });
         // 更新UI
         renewListItem(commHolder, t, position);
     }
@@ -42,11 +57,33 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         return mList.size();
     }
 
+    public void setItemClickListener(ItemClickListener listener) {
+        mListener = listener;
+    }
+
+    public void exchangeData(List<T> list) {
+        if (mList != list) {
+            mList = list;
+            notifyDataSetChanged();
+        }
+    }
+
+    public void formatDate() {
+        if (!mList.equals(mCopyList)) {
+            mList = mCopyList;
+            notifyDataSetChanged();
+        }
+    }
+
     @Override
     public int getItemViewType(int position) {
         return super.getItemViewType(position);
     }
 
-    public abstract void renewListItem(CommonViewHolder viewHolder, T t, int position);
+    protected abstract void renewListItem(CommonViewHolder viewHolder, T t, int position);
+
+    public interface ItemClickListener {
+        void onItemClick(int position);
+    }
 
 }

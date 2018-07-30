@@ -48,6 +48,14 @@ public final class Config {
     }
 
     /**
+     *  获取图片类型
+     * @return
+     */
+    public Katakuri.ImageType getImageType(){
+        return imageType;
+    }
+
+    /**
      *  获取checkbox最大选择数量
      * @return checkbox最大选择数量
      */

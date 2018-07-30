@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,21 +16,27 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.hebaiyi.www.katakuri.R;
+import com.hebaiyi.www.katakuri.adapter.BaseAdapter;
 import com.hebaiyi.www.katakuri.adapter.ImageAdapter;
+import com.hebaiyi.www.katakuri.adapter.PopupAdapter;
 import com.hebaiyi.www.katakuri.bean.Folder;
 import com.hebaiyi.www.katakuri.model.KatakuriModel;
 import com.hebaiyi.www.katakuri.util.StringUtil;
@@ -53,6 +60,10 @@ public class KatakuriActivity extends BaseActivity {
     private ProgressDialog mProgressDialog;
     private Button mBtnPerView;
     private Button mBtnFolder;
+    private RelativeLayout mRlytBottom;
+    private PopupWindow mPopupFolderList;
+    private View mRootView;
+    private boolean isShowing;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -65,6 +76,7 @@ public class KatakuriActivity extends BaseActivity {
         mBtnSure = findViewById(R.id.katakuri_btn_sure);
         mBtnPerView = findViewById(R.id.katakuri_btn_per_view);
         mBtnFolder = findViewById(R.id.katakuri_btn_folder);
+        mRlytBottom = findViewById(R.id.katakuri_lyt_bottom);
         // 设置状态栏颜色
         setStatusBarColor();
         // 初始化Toolbar
@@ -123,18 +135,34 @@ public class KatakuriActivity extends BaseActivity {
      * 初始化按钮监听
      */
     private void initClick() {
+        // 选择文件夹按钮
         mBtnFolder.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View v) {
+                if (mPopupFolderList != null) {
+                    if (isShowing) {
+                        mPopupFolderList.dismiss();
+                    } else {
+                        isShowing = true;
+                        showFolderCatalogue();
+                    }
+                } else {
+                    initFolderCatalogue();
+                }
+
+            }
+        });
+
+        // 确认按钮
+        mBtnSure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
             }
         });
-        mBtnFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
+        // 预览按钮
         mBtnPerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,6 +171,71 @@ public class KatakuriActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 展示文件夹选择的PopupWindow
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void showFolderCatalogue() {
+        //产生背景变暗效果
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.4f;
+        getWindow().setAttributes(lp);
+        // 显示popupWindow
+        mPopupFolderList.showAtLocation(mRootView, Gravity.BOTTOM, 0, mRlytBottom.getMeasuredHeight());
+
+    }
+
+    /**
+     * 初始化popupWindow
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void initFolderCatalogue() {
+        View contentView = LayoutInflater.from(this).inflate(R.layout.popup_katakuri, null);
+        mPopupFolderList = new PopupWindow(this);
+        mPopupFolderList.setContentView(contentView);
+        mPopupFolderList.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        mRootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+        mPopupFolderList.setHeight(mRootView.getMeasuredHeight() / 12 * 9);
+        mPopupFolderList.setOutsideTouchable(true);
+        mPopupFolderList.setFocusable(true);
+        mPopupFolderList.setBackgroundDrawable(new ColorDrawable(getColor(R.color.white)));
+        mPopupFolderList.setAnimationStyle(R.style.anim_katakuri_popup);
+        mPopupFolderList.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                isShowing = false;
+                // 恢复透明度
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                lp.alpha = 1f;
+                getWindow().setAttributes(lp);
+            }
+        });
+        RecyclerView rcv = contentView.findViewById(R.id.popup_rcv_list);
+        // 设置分界线
+        rcv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        // 设置recyclerView
+        final PopupAdapter adapter = new PopupAdapter(mFolders);
+        rcv.setLayoutManager(new LinearLayoutManager(this));
+        rcv.setAdapter(adapter);
+        // 设置监听
+        adapter.setItemClickListener(new BaseAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                if (adapter.getItemViewType(position) == PopupAdapter.TYPE_HEADER) {
+                    // 格式化数据
+                    mAdapter.formatDate();
+                    mBtnFolder.setText(getString(R.string.katakuri_all_picture));
+                    mPopupFolderList.dismiss();
+                } else {
+                    mBtnFolder.setText(mFolders.get(position).getFolderName());
+                    mAdapter.exchangeData(mModel.getPaths(mFolders.get(position).getDir()));
+                    mPopupFolderList.dismiss();
+                }
+            }
+        });
+        // 显示popupWindow
+        showFolderCatalogue();
+    }
 
     /**
      * 初始化列表

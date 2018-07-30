@@ -5,5 +5,6 @@
     <string name="katakuri_tb_title">所有图片</string>
     <string name="katakuri_btn_sure">确定</string>
     <string name="katakuri_btn_per_view">预览</string>
+    <string name="katakuri_all_picture">全部图片</string>
 
 </resources>
