@@ -2,8 +2,6 @@ package com.hebaiyi.www.katakuri.activity;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -11,15 +9,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.SparseBooleanArray;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hebaiyi.www.katakuri.Config;
@@ -28,7 +23,6 @@ import com.hebaiyi.www.katakuri.adapter.BaseAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewBottomAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewViewPagerAdapter;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
-import com.hebaiyi.www.katakuri.imageLoader.Caramel;
 import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.util.ArrayList;
@@ -46,11 +40,9 @@ public class PerViewActivity extends BaseActivity {
     private CheckBox mCbSelection;
     private Button mBtnSure;
     private TextView mTvNum;
-    private ImageEngine mEngine;
     private int mCurrPosition;
     private PerViewBottomAdapter mAdapter;
-    private HashMap<String,Boolean> mFlags;
-    private PerViewViewPagerAdapter mVpAdapter;
+    private HashMap<String, Boolean> mFlags;
     private int mCurrNum;
 
     public static void actionStart(Activity activity, ArrayList<String> paths) {
@@ -104,7 +96,6 @@ public class PerViewActivity extends BaseActivity {
     @Override
     protected void initVariables() {
         mSelectionList = getIntent().getStringArrayListExtra("select_paths");
-        mEngine = Config.getInstance().getImageEngine();
         // 初始化标记容器
         initSparseBooleanArray();
         // 初始化当前选择数
@@ -138,6 +129,7 @@ public class PerViewActivity extends BaseActivity {
 
             @Override
             public void onPageSelected(int position) {
+                mAdapter.setCheek(position);
                 if (mFlags.get(mSelectionList.get(position))) {
                     mCbSelection.setChecked(true);
                 } else {
@@ -204,14 +196,16 @@ public class PerViewActivity extends BaseActivity {
     private void controlEdge() {
         if (mTbTop.getVisibility() == View.VISIBLE) {
             mTbTop.setVisibility(View.GONE);
-            setStatusBarColor(Color.TRANSPARENT);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mRcvRotation.setVisibility(View.GONE);
         } else {
             mTbTop.setVisibility(View.VISIBLE);
-            setStatusBarColor(getResources().getColor(R.color.pink));
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mRcvRotation.setVisibility(View.VISIBLE);
         }
     }
+
 
     /**
      * 初始化状态栏的颜色
@@ -227,8 +221,8 @@ public class PerViewActivity extends BaseActivity {
      * 初始化ViewPager
      */
     private void initViewPager() {
-        mVpAdapter = new PerViewViewPagerAdapter(mSelectionList);
-        mVpAdapter.setViewPagerClick(new PerViewViewPagerAdapter.ViewPagerClickCallBack() {
+        PerViewViewPagerAdapter vpAdapter = new PerViewViewPagerAdapter(mSelectionList);
+        vpAdapter.setViewPagerClick(new PerViewViewPagerAdapter.ViewPagerClickCallBack() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onViewPagerItemClick() {
@@ -236,14 +230,14 @@ public class PerViewActivity extends BaseActivity {
                 controlEdge();
             }
         });
-        mVpContent.setAdapter(mVpAdapter);
+        mVpContent.setAdapter(vpAdapter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Intent i = new Intent("com.hebaiyi.www.katakuri.KatakuriActivity.freshSelection");
-        i.putExtra("return_date",mFlags);
+        i.putExtra("return_date", mFlags);
         sendBroadcast(i);
     }
 
@@ -251,7 +245,7 @@ public class PerViewActivity extends BaseActivity {
      * 初始化recyclerView
      */
     private void initRecyclerView() {
-        mAdapter = new PerViewBottomAdapter(mSelectionList, this);
+        mAdapter = new PerViewBottomAdapter(mSelectionList);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         mAdapter.setItemClickListener(new BaseAdapter.ItemClickListener() {

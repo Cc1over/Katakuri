@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -22,7 +21,6 @@ import com.hebaiyi.www.katakuri.util.ViewUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 public class ImageAdapter extends BaseAdapter<String> {
 
@@ -32,6 +30,7 @@ public class ImageAdapter extends BaseAdapter<String> {
     public HashMap<String, Boolean> mFlags;
     private Context mContext;
     private Caramel.Filter mFilter;
+    private List<String> mSelections;
 
     public ImageAdapter(Context context, List<String> list) {
         super(list, R.layout.katakuri_list_item);
@@ -47,6 +46,8 @@ public class ImageAdapter extends BaseAdapter<String> {
         initSparseBooleanArray();
         // 初始化过滤器
         initFilter();
+        // 初始化选择容器
+        mSelections = new ArrayList<>();
     }
 
     @Override
@@ -127,15 +128,6 @@ public class ImageAdapter extends BaseAdapter<String> {
         checkBox.setChecked(mFlags.get(getData().get(position)));
     }
 
-    private void registerImageListener(ImageView imageView) {
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-    }
-
     /**
      * CheckBox点击点击后触发的事件
      */
@@ -153,6 +145,8 @@ public class ImageAdapter extends BaseAdapter<String> {
             darkImageView(imageView);
             // 通知按钮改变现实内容
             postButtonChange();
+            // 添加到选择容器
+            mSelections.add(getData().get(position));
         } else {
             if (!positionInSelect(position)) {
                 // 保存状态
@@ -176,6 +170,8 @@ public class ImageAdapter extends BaseAdapter<String> {
             lightImageView(imageView);
             // 通知按钮更改内容
             postButtonChange();
+            // 从容器中移除
+            mSelections.remove(getData().get(position));
         }
     }
 
@@ -223,7 +219,7 @@ public class ImageAdapter extends BaseAdapter<String> {
      */
     private boolean positionInSelect(int position) {
         for (int i = 0; i < mFlags.size(); i++) {
-            if (mFlags.get(getData().get(position)) && i == position) {
+            if (mFlags.get(getFormatDate().get(position)) && i == position) {
                 return true;
             }
         }
@@ -240,18 +236,28 @@ public class ImageAdapter extends BaseAdapter<String> {
         for (String path : keySet) {
             boolean isCheck = map.get(path);
             if (!isCheck) {
-                if (positionInSelect(getData().indexOf(path))) {
+                if (positionInSelect(getFormatDate().indexOf(path))) {
+                    // 当前选择数简易
                     mNotSelection--;
+                    // 从选择容器中移除
+                    mSelections.remove(path);
+                    // 通知局部更新
                     this.notifyItemChanged(getData().indexOf(path));
                 }
             } else {
-                if (!positionInSelect(getData().indexOf(path))) {
+                if (!positionInSelect(getFormatDate().indexOf(path))) {
+                    // 当前选择数加一
                     mNotSelection++;
+                    // 添加到已选容器中
+                    mSelections.add(path);
+                    // 通知局部更新
                     this.notifyItemChanged(getData().indexOf(path));
                 }
             }
+            // 保存标记
             mFlags.put(path, map.get(path));
         }
+        // 通知按钮内容变化
         postButtonChange();
     }
 
@@ -259,13 +265,7 @@ public class ImageAdapter extends BaseAdapter<String> {
      * 返回保存已经选择的选项的列表
      */
     public List<String> getSelectedItems() {
-        List<String> selections = new ArrayList<>();
-        for (int i = 0; i < getData().size(); i++) {
-            if (mFlags.get(getData().get(i))) {
-                selections.add(getData().get(i));
-            }
-        }
-        return selections;
+        return mSelections;
     }
 
 

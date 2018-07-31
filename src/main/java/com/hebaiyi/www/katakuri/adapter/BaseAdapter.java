@@ -74,6 +74,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         }
     }
 
+    public List<T> getFormatDate(){
+        return mCopyList;
+    }
+
     @Override
     public int getItemViewType(int position) {
         return super.getItemViewType(position);
