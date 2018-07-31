@@ -13,6 +13,7 @@ public class ActionCreator {
     private int mWidth;
     private int mHeight;
     private int mRes;
+    private boolean throughCache = true;
     private Caramel.Filter mFilter;
 
     ActionCreator(String path, Dispatcher dispatcher) {
@@ -45,6 +46,11 @@ public class ActionCreator {
         return this;
     }
 
+    public ActionCreator throughCache(boolean throughCache) {
+        this.throughCache = throughCache;
+        return this;
+    }
+
 
     /**
      * 加载图片
@@ -60,7 +66,7 @@ public class ActionCreator {
         imageView.setTag(mPath);
         // 从内存取出bitmap
         Bitmap bm = mMemoryCache.getBitmapFromCache(mPath);
-        if (bm != null) {
+        if (bm != null && throughCache) {
             // 加载图片
             Caramel.setBitmap(imageView, bm, mFilter);
         } else {
@@ -74,7 +80,6 @@ public class ActionCreator {
             mDispatcher.performExecute(action);
         }
     }
-
 
 
 }

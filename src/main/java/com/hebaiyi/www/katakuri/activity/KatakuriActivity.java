@@ -44,6 +44,7 @@ import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class KatakuriActivity extends BaseActivity {
@@ -54,6 +55,7 @@ public class KatakuriActivity extends BaseActivity {
     private Toolbar mTbTop;
     private KatakuriModel mModel;
     private SelectReceiver mReceiver;
+    private PerViewReceiver mPreReceiver;
     private Button mBtnSure;
     private ImageAdapter mAdapter;
     private KatakuriHandler mHandler;
@@ -124,10 +126,16 @@ public class KatakuriActivity extends BaseActivity {
      * 注册广播
      */
     private void registerReceiver() {
+        // 注册刷新按钮的广播
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.hebaiyi.www.katakuri.KatakuriActivity.freshButton");
         mReceiver = new SelectReceiver();
         registerReceiver(mReceiver, filter);
+        // 注册preview广播
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.hebaiyi.www.katakuri.KatakuriActivity.freshSelection");
+        mPreReceiver = new PerViewReceiver();
+        registerReceiver(mPreReceiver,intentFilter);
     }
 
     @Override
@@ -135,6 +143,7 @@ public class KatakuriActivity extends BaseActivity {
         super.onDestroy();
         // 注销广播
         unregisterReceiver(mReceiver);
+        unregisterReceiver(mPreReceiver);
     }
 
     /**
@@ -345,17 +354,6 @@ public class KatakuriActivity extends BaseActivity {
         mProgressDialog.show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PerViewActivity.REQUEST_CODE) {
-            if (requestCode == RESULT_OK) {
-                 List<String> selections = data.getStringArrayListExtra("return_date");
-                 mAdapter.notifySelectionChange(selections);
-            }
-        }
-    }
-
     private class SelectReceiver extends BroadcastReceiver {
 
         @Override
@@ -374,6 +372,15 @@ public class KatakuriActivity extends BaseActivity {
                 mBtnSure.setVisibility(View.VISIBLE);
                 mBtnPerView.setVisibility(View.VISIBLE);
             }
+        }
+    }
+
+    private class PerViewReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            HashMap map = (HashMap) intent.getSerializableExtra("return_date");
+            mAdapter.notifySelectionChange(map);
         }
     }
 

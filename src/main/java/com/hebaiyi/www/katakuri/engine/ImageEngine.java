@@ -15,4 +15,7 @@ public interface ImageEngine {
     void loadThumbnailFilter(int placeholderRes, String path, ImageView imageView, Caramel.Filter filter);
 
     void loadThumbnailOnlyFilter(String path, ImageView imageView, Caramel.Filter filter);
+
+    void loadArtWorkFromLocal(String path,ImageView imageView);
+
 }

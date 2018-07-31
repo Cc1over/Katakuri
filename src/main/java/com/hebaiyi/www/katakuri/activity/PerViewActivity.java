@@ -2,6 +2,7 @@ package com.hebaiyi.www.katakuri.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,9 +28,11 @@ import com.hebaiyi.www.katakuri.adapter.BaseAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewBottomAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewViewPagerAdapter;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
+import com.hebaiyi.www.katakuri.imageLoader.Caramel;
 import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class PerViewActivity extends BaseActivity {
@@ -46,7 +49,8 @@ public class PerViewActivity extends BaseActivity {
     private ImageEngine mEngine;
     private int mCurrPosition;
     private PerViewBottomAdapter mAdapter;
-    private SparseBooleanArray mFlags;
+    private HashMap<String,Boolean> mFlags;
+    private PerViewViewPagerAdapter mVpAdapter;
     private int mCurrNum;
 
     public static void actionStart(Activity activity, ArrayList<String> paths) {
@@ -90,9 +94,9 @@ public class PerViewActivity extends BaseActivity {
      * 初始化标记容器
      */
     private void initSparseBooleanArray() {
-        mFlags = new SparseBooleanArray();
+        mFlags = new HashMap<>();
         for (int i = 0; i < mSelectionList.size(); i++) {
-            mFlags.put(i, true);
+            mFlags.put(mSelectionList.get(i), true);
         }
     }
 
@@ -134,7 +138,7 @@ public class PerViewActivity extends BaseActivity {
 
             @Override
             public void onPageSelected(int position) {
-                if (mFlags.get(position)) {
+                if (mFlags.get(mSelectionList.get(position))) {
                     mCbSelection.setChecked(true);
                 } else {
                     mCbSelection.setChecked(false);
@@ -176,24 +180,18 @@ public class PerViewActivity extends BaseActivity {
                 String currPath = mSelectionList.get(mCurrPosition);
                 if (mCbSelection.isChecked()) {
                     // 保存标记
-                    mFlags.put(mCurrPosition, true);
+                    mFlags.put(currPath, true);
                     // 去除滤镜
                     mAdapter.clearFilterOnItem(mCurrPosition);
                     // 确认数加1
                     setNumText(++mCurrNum);
-                    // 移除变化
-                    if ("".equals(mSelectionList.get(mCurrPosition))) {
-                        mSelectionList.set(mCurrPosition,currPath);
-                    }
                 } else {
                     // 保存标记
-                    mFlags.put(mCurrPosition, false);
+                    mFlags.put(currPath, false);
                     // 添加滤镜
                     mAdapter.setFilterOnItem(mCurrPosition);
                     // 确认数减1
                     setNumText(--mCurrNum);
-                    // 记录变化
-                    mSelectionList.set(mCurrPosition,"");
                 }
             }
         });
@@ -229,15 +227,8 @@ public class PerViewActivity extends BaseActivity {
      * 初始化ViewPager
      */
     private void initViewPager() {
-        final List<View> views = new ArrayList<>();
-        for (int i = 0; i < mSelectionList.size(); i++) {
-            View view = LayoutInflater.from(this).inflate(R.layout.per_view_pager, null);
-            ImageView iv = view.findViewById(R.id.per_view_iv_content);
-            mEngine.loadThumbnailResize(0, mSelectionList.get(i), iv);
-            views.add(view);
-        }
-        PerViewViewPagerAdapter adapter = new PerViewViewPagerAdapter(views);
-        adapter.setViewPagerClick(new PerViewViewPagerAdapter.ViewPagerClickCallBack() {
+        mVpAdapter = new PerViewViewPagerAdapter(mSelectionList);
+        mVpAdapter.setViewPagerClick(new PerViewViewPagerAdapter.ViewPagerClickCallBack() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onViewPagerItemClick() {
@@ -245,17 +236,15 @@ public class PerViewActivity extends BaseActivity {
                 controlEdge();
             }
         });
-        mVpContent.setAdapter(adapter);
+        mVpContent.setAdapter(mVpAdapter);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Intent i = new Intent();
-        if (mSelectionList != null && mSelectionList.size() != 0) {
-            i.putStringArrayListExtra("return_date", (ArrayList<String>) mSelectionList);
-            setResult(REQUEST_CODE, i);
-        }
+        Intent i = new Intent("com.hebaiyi.www.katakuri.KatakuriActivity.freshSelection");
+        i.putExtra("return_date",mFlags);
+        sendBroadcast(i);
     }
 
     /**

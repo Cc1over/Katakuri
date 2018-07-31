@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -24,6 +22,7 @@ import com.hebaiyi.www.katakuri.util.ViewUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class ImageAdapter extends BaseAdapter<String> {
 
@@ -35,7 +34,6 @@ public class ImageAdapter extends BaseAdapter<String> {
     private Caramel.Filter mFilter;
 
     public ImageAdapter(Context context, List<String> list) {
-
         super(list, R.layout.katakuri_list_item);
         // 获取上下文
         mContext = context.getApplicationContext();
@@ -232,16 +230,29 @@ public class ImageAdapter extends BaseAdapter<String> {
         return false;
     }
 
-    public void notifySelectionChange(List<String> selections){
-        for(int i=0;i<selections.size();i++){
-            String path = selections.get(i);
-            if("".equals(path)){
-                mFlags.put(path,false);
-            }else{
-                mFlags.put(path,true);
+    /**
+     * 通知适配器选中的项目发生刷新
+     *
+     * @param map 状态保存容器
+     */
+    public void notifySelectionChange(HashMap<String, Boolean> map) {
+        String[] keySet = map.keySet().toArray(new String[0]);
+        for (String path : keySet) {
+            boolean isCheck = map.get(path);
+            if (!isCheck) {
+                if (positionInSelect(getData().indexOf(path))) {
+                    mNotSelection--;
+                    this.notifyItemChanged(getData().indexOf(path));
+                }
+            } else {
+                if (!positionInSelect(getData().indexOf(path))) {
+                    mNotSelection++;
+                    this.notifyItemChanged(getData().indexOf(path));
+                }
             }
-            this.notifyItemChanged(getData().indexOf(path));
+            mFlags.put(path, map.get(path));
         }
+        postButtonChange();
     }
 
     /**
@@ -249,7 +260,7 @@ public class ImageAdapter extends BaseAdapter<String> {
      */
     public List<String> getSelectedItems() {
         List<String> selections = new ArrayList<>();
-        for (int i = 0; i < mFlags.size(); i++) {
+        for (int i = 0; i < getData().size(); i++) {
             if (mFlags.get(getData().get(i))) {
                 selections.add(getData().get(i));
             }

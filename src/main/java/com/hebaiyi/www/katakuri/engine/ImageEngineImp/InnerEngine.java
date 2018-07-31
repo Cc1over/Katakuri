@@ -56,4 +56,13 @@ public class InnerEngine implements ImageEngine {
                 .into(imageView);
     }
 
+    @Override
+    public void loadArtWorkFromLocal(String path, ImageView imageView) {
+        Caramel.get()
+                .load(path)
+                .resize(0,0)
+                .throughCache(false)
+                .into(imageView);
+    }
+
 }
