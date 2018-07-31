@@ -17,10 +17,9 @@ public class InnerEngine implements ImageEngine {
 
 
     @Override
-    public void loadThumbnailResize(int resize, int placeholderRes, String path, ImageView imageView) {
+    public void loadThumbnailResize(int resize, String path, ImageView imageView) {
         Caramel.get()
                 .load(path)
-                .placeholder(placeholderRes)
                 .resize(resize, resize)
                 .into(imageView);
     }
@@ -46,6 +45,14 @@ public class InnerEngine implements ImageEngine {
                 .load(path)
                 .filter(filter)
                 .placeholder(placeholderRes)
+                .into(imageView);
+    }
+
+    @Override
+    public void loadThumbnailOnlyFilter(String path, ImageView imageView, Caramel.Filter filter) {
+        Caramel.get()
+                .load(path)
+                .filter(filter)
                 .into(imageView);
     }
 

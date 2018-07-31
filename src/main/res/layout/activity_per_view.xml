@@ -1,9 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".adapter.PerViewActivity">
+    android:orientation="vertical"
+    android:layout_height="match_parent">
 
-</android.support.constraint.ConstraintLayout>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/per_view_vp_content"
+        android:overScrollMode="never"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v4.view.ViewPager>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/per_view_tb_top"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/pink">
+
+        <TextView
+            android:id="@+id/per_view_tv_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:textColor="@color/white"
+            android:textSize="19sp"
+            android:typeface="sans" />
+
+        <Button
+            android:id="@+id/per_view_btn_sure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:typeface="sans"
+            android:layout_marginEnd="5dp"
+            android:background="@null"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+    </android.support.v7.widget.Toolbar>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/per_view_rcv_rotation"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:overScrollMode="never"
+            android:layout_above="@+id/per_view_lyt_bottom"/>
+
+
+    <RelativeLayout
+        android:id="@+id/per_view_lyt_bottom"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="@color/transparent">
+
+        <CheckBox
+            android:id="@+id/per_view_cb_select"
+            android:layout_width="wrap_content"
+            android:checked="true"
+            android:layout_alignBaseline="@+id/per_view_tv_selection"
+            android:layout_toLeftOf="@+id/per_view_tv_selection"
+            android:layout_marginRight="5dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/per_view_tv_selection"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:background="@null"
+            android:text="@string/per_view_text"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:typeface="sans" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

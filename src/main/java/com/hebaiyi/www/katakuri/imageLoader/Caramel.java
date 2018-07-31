@@ -38,7 +38,7 @@ public class Caramel {
             // 对bitmap处理
             Bitmap bitmap = filter.bitmapFilter(bm);
             if (bitmap == null) {
-                throw new NullPointerException("filter bitmap not be null");
+                imageView.setImageBitmap(bm);
             }else{
                 imageView.setImageBitmap(bitmap);
             }

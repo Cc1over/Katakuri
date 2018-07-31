@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -42,6 +43,7 @@ import com.hebaiyi.www.katakuri.model.KatakuriModel;
 import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KatakuriActivity extends BaseActivity {
@@ -62,6 +64,7 @@ public class KatakuriActivity extends BaseActivity {
     private Button mBtnFolder;
     private RelativeLayout mRlytBottom;
     private PopupWindow mPopupFolderList;
+    private ImageView mIvTriangle;
     private View mRootView;
     private boolean isShowing;
 
@@ -72,9 +75,11 @@ public class KatakuriActivity extends BaseActivity {
         // 初始化控件
         mRcvContent = findViewById(R.id.katakuri_rcv_content);
         mTbTop = findViewById(R.id.katakuri_tb_top);
-        mModel = new KatakuriModel();
         mBtnSure = findViewById(R.id.katakuri_btn_sure);
         mBtnPerView = findViewById(R.id.katakuri_btn_per_view);
+        mBtnPerView.setVisibility(View.GONE);
+        mBtnSure.setVisibility(View.GONE);
+        mIvTriangle = findViewById(R.id.katakuri_iv_triangle);
         mBtnFolder = findViewById(R.id.katakuri_btn_folder);
         mRlytBottom = findViewById(R.id.katakuri_lyt_bottom);
         // 设置状态栏颜色
@@ -91,6 +96,7 @@ public class KatakuriActivity extends BaseActivity {
 
     @Override
     protected void initVariables() {
+        mModel = new KatakuriModel();
         // 初始化Handler
         mHandler = new KatakuriHandler(this);
         // 注册广播
@@ -140,22 +146,14 @@ public class KatakuriActivity extends BaseActivity {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-                if (mPopupFolderList != null) {
-                    if (isShowing) {
-                        mPopupFolderList.dismiss();
-                    } else {
-                        isShowing = true;
-                        showFolderCatalogue();
-                    }
-                } else {
-                    initFolderCatalogue();
-                }
-
+                // 控制popupWindow
+                controlPopupWindow();
             }
         });
 
         // 确认按钮
         mBtnSure.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
 
@@ -166,9 +164,36 @@ public class KatakuriActivity extends BaseActivity {
         mBtnPerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                PerViewActivity.actionStart(KatakuriActivity.this, (ArrayList<String>) mAdapter.getSelectedItems());
             }
         });
+
+        // 选择文件夹按钮旁边的小三角形
+        mIvTriangle.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View v) {
+                // 控制popupWindow
+                controlPopupWindow();
+            }
+        });
+    }
+
+    /**
+     * 控制popupWindow
+     */
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void controlPopupWindow() {
+        if (mPopupFolderList != null) {
+            if (isShowing) {
+                mPopupFolderList.dismiss();
+            } else {
+                isShowing = true;
+                showFolderCatalogue();
+            }
+        } else {
+            initFolderCatalogue();
+        }
     }
 
     /**
@@ -182,7 +207,6 @@ public class KatakuriActivity extends BaseActivity {
         getWindow().setAttributes(lp);
         // 显示popupWindow
         mPopupFolderList.showAtLocation(mRootView, Gravity.BOTTOM, 0, mRlytBottom.getMeasuredHeight());
-
     }
 
     /**
@@ -321,6 +345,16 @@ public class KatakuriActivity extends BaseActivity {
         mProgressDialog.show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PerViewActivity.REQUEST_CODE) {
+            if (requestCode == RESULT_OK) {
+                 List<String> selections = data.getStringArrayListExtra("return_date");
+                 mAdapter.notifySelectionChange(selections);
+            }
+        }
+    }
 
     private class SelectReceiver extends BroadcastReceiver {
 
@@ -330,13 +364,15 @@ public class KatakuriActivity extends BaseActivity {
             String sure = getString(R.string.katakuri_btn_sure);
             String perView = getString(R.string.katakuri_btn_per_view);
             if (currNum == 0) {
-                mBtnSure.setText(sure);
-                mBtnPerView.setText(perView);
+                mBtnSure.setVisibility(View.GONE);
+                mBtnPerView.setVisibility(View.GONE);
             } else {
                 String numSure = StringUtil.buildString(sure, "(", currNum + "", ")");
                 String numPerView = StringUtil.buildString(perView, "(", currNum + "", ")");
                 mBtnSure.setText(numSure);
                 mBtnPerView.setText(numPerView);
+                mBtnSure.setVisibility(View.VISIBLE);
+                mBtnPerView.setVisibility(View.VISIBLE);
             }
         }
     }

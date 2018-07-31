@@ -1,7 +1,6 @@
 package com.hebaiyi.www.katakuri.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.widget.ImageView;
 import android.widget.TextView;
 

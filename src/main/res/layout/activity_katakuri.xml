@@ -60,10 +60,19 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="18dp"
             android:background="@null"
-            android:drawableEnd="@drawable/katakuri_btn_suffex"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:typeface="sans" />
+
+        <ImageView
+            android:id="@+id/katakuri_iv_triangle"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="15dp"
+            android:layout_toRightOf="@+id/katakuri_btn_folder"
+            android:src="@drawable/katakuri_btn_suffex"
+            />
 
         <Button
             android:id="@+id/katakuri_btn_per_view"

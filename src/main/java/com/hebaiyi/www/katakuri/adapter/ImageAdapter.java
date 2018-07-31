@@ -6,7 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.util.SparseBooleanArray;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -17,8 +18,10 @@ import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
 import com.hebaiyi.www.katakuri.imageLoader.Caramel;
+import com.hebaiyi.www.katakuri.util.ToastUtil;
 import com.hebaiyi.www.katakuri.util.ViewUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,21 +30,20 @@ public class ImageAdapter extends BaseAdapter<String> {
     private ImageEngine mEngine;
     private final int mMaxSelection;
     private int mNotSelection;
-//    private SparseBooleanArray mFlags;
-    private HashMap<String,Boolean> mFlags;
+    public HashMap<String, Boolean> mFlags;
     private Context mContext;
     private Caramel.Filter mFilter;
 
     public ImageAdapter(Context context, List<String> list) {
+
         super(list, R.layout.katakuri_list_item);
         // 获取上下文
-        mContext = context;
+        mContext = context.getApplicationContext();
         // 获取图片加载引擎
         mEngine = Config.getInstance().getImageEngine();
         // 获取所需数据
         mMaxSelection = Config.getInstance().getMaxSelectable();
         // 初始化状态标志容器
-//        mFlags = new SparseBooleanArray();
         mFlags = new HashMap<>();
         // 初始化状态容器
         initSparseBooleanArray();
@@ -55,16 +57,17 @@ public class ImageAdapter extends BaseAdapter<String> {
         ImageView iv = viewHolder.getView(R.id.list_item_iv_picture);
         CheckBox cb = viewHolder.getView(R.id.list_item_cb_select);
         // 加载图片
-        if(mFlags.get(position)){
+        if (mFlags.get(getData().get(position)) == null || mFlags.get(getData().get(position))) {
             // 加载图片添加过滤器
             mEngine.loadThumbnailFilter(R.drawable.list_item_iv_default, path, iv, mFilter);
-        }else{
+        } else {
             // 加载图片不添加过滤器
             mEngine.loadThumbnail(R.drawable.list_item_iv_default, path, iv);
         }
         // 对CheckBox进行处处理,防止错乱
         treatCheckBox(cb, position, iv);
     }
+
 
     /**
      * 初始化状态容器
@@ -77,14 +80,14 @@ public class ImageAdapter extends BaseAdapter<String> {
         }
         // 初始化
         for (int i = 0; i < data.size(); i++) {
-            mFlags.append(i, false);
+            mFlags.put(data.get(i), false);
         }
     }
 
     /**
-     *  初始化过滤器
+     * 初始化过滤器
      */
-    private void initFilter(){
+    private void initFilter() {
         mFilter = new Caramel.Filter() {
             @Override
             public Bitmap bitmapFilter(Bitmap bitmap) {
@@ -94,7 +97,7 @@ public class ImageAdapter extends BaseAdapter<String> {
             @Override
             public void imageFilter(ImageView imageView) {
                 // 让imageView变暗
-               darkImageView(imageView);
+                darkImageView(imageView);
             }
         };
     }
@@ -112,21 +115,21 @@ public class ImageAdapter extends BaseAdapter<String> {
         // 设置监听
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
                     // checkbox点击
                     isCheck(position, checkBox, imageView);
                 } else {
                     // checkbox点击取消
-                    noCheck(position, imageView);
+                    isNotCheck(position, imageView);
                 }
             }
         });
         // 设置状态
-        checkBox.setChecked(mFlags.get(position));
+        checkBox.setChecked(mFlags.get(getData().get(position)));
     }
 
-    private void registerImageListener(ImageView imageView){
+    private void registerImageListener(ImageView imageView) {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,11 +144,11 @@ public class ImageAdapter extends BaseAdapter<String> {
     private void isCheck(int position, CheckBox checkBox, ImageView imageView) {
         if (mNotSelection < mMaxSelection) {
             // 恢复状态时调用直接退出
-            if (mFlags.get(position)) {
+            if (mFlags.get(getData().get(position))) {
                 return;
             }
             // 保存状态
-            mFlags.put(position, true);
+            mFlags.put(getData().get(position), true);
             // 增加当前选择数
             mNotSelection++;
             // 让ImageView变暗
@@ -155,9 +158,9 @@ public class ImageAdapter extends BaseAdapter<String> {
         } else {
             if (!positionInSelect(position)) {
                 // 保存状态
-                mFlags.put(position, false);
+                mFlags.put(getData().get(position), false);
                 checkBox.setChecked(false);
-                Toast.makeText(mContext, "最多只能选择" + mMaxSelection + "项", Toast.LENGTH_SHORT).show();
+                ToastUtil.showToast(mContext, "最多只能选择" + mMaxSelection + "项", Toast.LENGTH_SHORT);
             }
         }
     }
@@ -165,12 +168,12 @@ public class ImageAdapter extends BaseAdapter<String> {
     /**
      * checkBox取消点击后触发事件
      */
-    private void noCheck(int position, ImageView imageView) {
+    private void isNotCheck(int position, ImageView imageView) {
         if (positionInSelect(position)) {
             // 减少当前选择数
             mNotSelection--;
             // 保存状态
-            mFlags.put(position, false);
+            mFlags.put(getData().get(position), false);
             // 让ImageView恢复
             lightImageView(imageView);
             // 通知按钮更改内容
@@ -216,17 +219,44 @@ public class ImageAdapter extends BaseAdapter<String> {
         }
     }
 
+
     /**
      * 判断位置的状态
      */
     private boolean positionInSelect(int position) {
         for (int i = 0; i < mFlags.size(); i++) {
-            if (mFlags.get(i) && i == position) {
+            if (mFlags.get(getData().get(position)) && i == position) {
                 return true;
             }
         }
         return false;
     }
+
+    public void notifySelectionChange(List<String> selections){
+        for(int i=0;i<selections.size();i++){
+            String path = selections.get(i);
+            if("".equals(path)){
+                mFlags.put(path,false);
+            }else{
+                mFlags.put(path,true);
+            }
+            this.notifyItemChanged(getData().indexOf(path));
+        }
+    }
+
+    /**
+     * 返回保存已经选择的选项的列表
+     */
+    public List<String> getSelectedItems() {
+        List<String> selections = new ArrayList<>();
+        for (int i = 0; i < mFlags.size(); i++) {
+            if (mFlags.get(getData().get(i))) {
+                selections.add(getData().get(i));
+            }
+        }
+        return selections;
+    }
+
 
 }
 

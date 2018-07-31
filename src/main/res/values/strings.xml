@@ -7,4 +7,8 @@
     <string name="katakuri_btn_per_view">预览</string>
     <string name="katakuri_all_picture">全部图片</string>
 
+    <!--PerViewActivity模块-->
+    <string name="per_view_btn_sure">确定</string>
+    <string name="per_view_text">选择</string>
+
 </resources>

@@ -41,7 +41,6 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
                 if (mListener != null) {
                     mListener.onItemClick(position);
                 }
-
             }
         });
         // 更新UI
