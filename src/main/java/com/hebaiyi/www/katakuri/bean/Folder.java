@@ -1,23 +1,11 @@
 package com.hebaiyi.www.katakuri.bean;
 
-import android.util.Log;
-
 public class Folder {
 
     private String dir;
     private String folderName;
     private int imageNum;
     private String firstImagePath;
-
-    public Folder() {
-
-    }
-
-    public Folder(String folderName, int imageNum, String firstImagePath) {
-        this.folderName = folderName;
-        this.imageNum = imageNum;
-        this.firstImagePath = firstImagePath;
-    }
 
     public String getFolderName() {
         return folderName;

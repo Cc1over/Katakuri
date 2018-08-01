@@ -6,6 +6,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -24,6 +25,7 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
     private Caramel.Filter mFilter;
     private SparseBooleanArray mFlags;
     private SparseArray<View> mCheeks;
+    private int mCurrPosition;
 
     public PerViewBottomAdapter(List<String> list) {
         super(list, R.layout.per_view_list_item);
@@ -53,6 +55,7 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
     @Override
     protected void renewListItem(CommonViewHolder viewHolder, String s, int position) {
         ImageView iv = viewHolder.getView(R.id.per_view_iv_rotation);
+        View v = viewHolder.getView(R.id.per_view_v_cheek);
         iv.setTag(s);
         // 根据选择情况添加滤镜
         if (mFlags.get(position)) {
@@ -60,14 +63,11 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
         } else {
             mEngine.loadThumbnailOnlyFilter(s, iv, mFilter);
         }
-        // 初始化保存用于显示边框的覆盖view
-        if (mCheeks.size() != getData().size()) {
-            View v = viewHolder.getView(R.id.per_view_v_cheek);
-            mCheeks.put(position, v);
-            // 默认第一项出现边框
-            if (position == 0) {
-                v.setVisibility(View.VISIBLE);
-            }
+        // 根据情况设置边框
+        if(mCurrPosition==position){
+            v.setVisibility(View.VISIBLE);
+        }else{
+            v.setVisibility(View.GONE);
         }
     }
 
@@ -95,13 +95,8 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
      * 给imageView设置边框
      */
     public void setCheek(int position) {
-        for (int i = 0; i < mCheeks.size(); i++) {
-            if (i == position) {
-                mCheeks.get(i).setVisibility(View.VISIBLE);
-            } else {
-                mCheeks.get(i).setVisibility(View.GONE);
-            }
-        }
+        mCurrPosition = position;
+        notifyDataSetChanged();
     }
 
     /**

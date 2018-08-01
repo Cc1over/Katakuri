@@ -17,12 +17,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.adapter.BaseAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewBottomAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewViewPagerAdapter;
-import com.hebaiyi.www.katakuri.engine.ImageEngine;
 import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.util.ArrayList;

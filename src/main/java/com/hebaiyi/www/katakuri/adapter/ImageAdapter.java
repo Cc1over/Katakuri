@@ -148,9 +148,9 @@ public class ImageAdapter extends BaseAdapter<String> {
             // 添加到选择容器
             mSelections.add(getData().get(position));
         } else {
-            if (!positionInSelect(position)) {
+            if (!positionInSelect(getData().get(position))) {
                 // 保存状态
-                mFlags.put(getData().get(position), false);
+                mFlags.put(getFormatDate().get(position), false);
                 checkBox.setChecked(false);
                 ToastUtil.showToast(mContext, "最多只能选择" + mMaxSelection + "项", Toast.LENGTH_SHORT);
             }
@@ -161,11 +161,11 @@ public class ImageAdapter extends BaseAdapter<String> {
      * checkBox取消点击后触发事件
      */
     private void isNotCheck(int position, ImageView imageView) {
-        if (positionInSelect(position)) {
+        if (positionInSelect(getData().get(position))) {
             // 减少当前选择数
             mNotSelection--;
             // 保存状态
-            mFlags.put(getData().get(position), false);
+            mFlags.put(getFormatDate().get(position), false);
             // 让ImageView恢复
             lightImageView(imageView);
             // 通知按钮更改内容
@@ -217,9 +217,9 @@ public class ImageAdapter extends BaseAdapter<String> {
     /**
      * 判断位置的状态
      */
-    private boolean positionInSelect(int position) {
+    private boolean positionInSelect(String path) {
         for (int i = 0; i < mFlags.size(); i++) {
-            if (mFlags.get(getFormatDate().get(position)) && i == position) {
+            if (mFlags.get(path)) {
                 return true;
             }
         }
@@ -236,7 +236,7 @@ public class ImageAdapter extends BaseAdapter<String> {
         for (String path : keySet) {
             boolean isCheck = map.get(path);
             if (!isCheck) {
-                if (positionInSelect(getFormatDate().indexOf(path))) {
+                if (positionInSelect(path)) {
                     // 当前选择数简易
                     mNotSelection--;
                     // 从选择容器中移除
@@ -245,7 +245,7 @@ public class ImageAdapter extends BaseAdapter<String> {
                     this.notifyItemChanged(getData().indexOf(path));
                 }
             } else {
-                if (!positionInSelect(getFormatDate().indexOf(path))) {
+                if (!positionInSelect(path)) {
                     // 当前选择数加一
                     mNotSelection++;
                     // 添加到已选容器中
@@ -267,7 +267,6 @@ public class ImageAdapter extends BaseAdapter<String> {
     public List<String> getSelectedItems() {
         return mSelections;
     }
-
 
 }
 

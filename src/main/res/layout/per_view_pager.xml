@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <com.hebaiyi.www.katakuri.ui.MatrixImageView
         android:id="@+id/per_view_iv_content"
-        android:scaleType="fitCenter"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:scaleType="matrix" />
 
 </LinearLayout>

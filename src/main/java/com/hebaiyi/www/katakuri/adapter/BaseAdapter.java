@@ -47,6 +47,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         renewListItem(commHolder, t, position);
     }
 
+    /**
+     *  获取当前数据源
+     * @return 当前数据源
+     */
     public List<T> getData() {
         return mList;
     }
@@ -60,6 +64,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         mListener = listener;
     }
 
+    /**
+     *  更换数据源
+     * @param list 数据源
+     */
     public void exchangeData(List<T> list) {
         if (mList != list) {
             mList = list;
@@ -67,6 +75,9 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     *  格式化数据，回到初始化状态
+     */
     public void formatDate() {
         if (!mList.equals(mCopyList)) {
             mList = mCopyList;
@@ -74,6 +85,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter {
         }
     }
 
+    /**
+     *  获取初始数据源
+     * @return 初始数据源
+     */
     public List<T> getFormatDate(){
         return mCopyList;
     }

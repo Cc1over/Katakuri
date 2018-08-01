@@ -7,6 +7,8 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/per_view_vp_content"
         android:overScrollMode="never"
+        android:layout_below="@+id/per_view_tb_top"
+        android:layout_above="@+id/per_view_rcv_rotation"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v4.view.ViewPager>
