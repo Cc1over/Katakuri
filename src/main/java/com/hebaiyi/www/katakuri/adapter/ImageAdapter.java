@@ -110,7 +110,7 @@ public class ImageAdapter extends BaseAdapter<String> {
         // 设置标签
         checkBox.setTag(position);
         // 扩大点击范围
-        ViewUtil.expandViewTouchDelegate(checkBox, 60, 60, 60, 60);
+        ViewUtil.expandViewTouchDelegate(checkBox, 20, 20, 20, 20);
         // 设置监听
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
-import com.hebaiyi.www.katakuri.ui.MatrixImageView;
 
 import java.util.List;
 

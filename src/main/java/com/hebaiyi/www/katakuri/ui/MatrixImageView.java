@@ -17,7 +17,7 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
         implements ViewTreeObserver.OnGlobalLayoutListener,
         ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener {
 
-    private static final int DELAY_MILLIS = 15;
+    private static final int DELAY_MILLIS = 5;
 
     private float mMaxScale; // 最大缩放值
     private float mMidScale; // 双击缩放值
@@ -83,18 +83,19 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
             int height = getHeight();
             Drawable drawable = getDrawable();
             if (drawable == null) {
+
                 return;
             }
             int intrinsicWidth = drawable.getIntrinsicWidth();
             int intrinsicHeight = drawable.getIntrinsicHeight();
             float scale = 1.0f;
-            if (width < intrinsicWidth && height > intrinsicHeight) {
+            if (width <= intrinsicWidth && height >= intrinsicHeight) {
                 scale = width * 1.0f / intrinsicWidth;
             }
-            if (width > intrinsicWidth && height < intrinsicHeight) {
+            if (width >= intrinsicWidth && height <= intrinsicHeight) {
                 scale = height * 1.0f / intrinsicHeight;
             }
-            if ((width < intrinsicWidth && height < intrinsicHeight) || (width > intrinsicWidth && height > intrinsicHeight)) {
+            if ((width <= intrinsicWidth && height <= intrinsicHeight) || (width >= intrinsicWidth && height >= intrinsicHeight)) {
                 scale = Math.min(width * 1.0f / intrinsicWidth, height * 1.0f / intrinsicHeight);
             }
             // 初始化缩放数据
@@ -268,12 +269,12 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
         RectF rectF = getMatrixRectF();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if ((rectF.width() - getWidth() > 5 || rectF.height() - getHeight() > 5)) {
+                if ((rectF.width() - getWidth() > 0.01 || rectF.height() - getHeight() > 0.01)) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if ((rectF.width() - getWidth() > 5 || rectF.height() - getHeight() > 5)) {
+                if ((rectF.width() - getWidth() > 0.01 || rectF.height() - getHeight() > 0.01)) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 float dx = x - mLastX;

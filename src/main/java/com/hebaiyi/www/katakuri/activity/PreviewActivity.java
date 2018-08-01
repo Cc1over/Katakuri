@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -27,7 +28,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PerViewActivity extends BaseActivity {
+import static com.hebaiyi.www.katakuri.activity.KatakuriActivity.EXTRA_NAME;
+
+public class PreviewActivity extends BaseActivity  {
 
     public static int REQUEST_CODE = 55;
 
@@ -44,7 +47,7 @@ public class PerViewActivity extends BaseActivity {
     private int mCurrNum;
 
     public static void actionStart(Activity activity, ArrayList<String> paths) {
-        Intent intent = new Intent(activity, PerViewActivity.class);
+        Intent intent = new Intent(activity, PreviewActivity.class);
         intent.putStringArrayListExtra("select_paths", paths);
         activity.startActivityForResult(intent, REQUEST_CODE);
     }
@@ -78,12 +81,22 @@ public class PerViewActivity extends BaseActivity {
         setViewPagerListener();
         // 设置checkbox点击监听
         setCheckboxListener();
+        // 设置监听
+        mBtnSure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent();
+                i.putStringArrayListExtra(EXTRA_NAME, (ArrayList<String>) mSelectionList);
+                setResult(RESULT_OK,i);
+                finish();
+            }
+        });
     }
 
     /**
      * 初始化标记容器
      */
-    private void initSparseBooleanArray() {
+    private void initHashMap() {
         mFlags = new HashMap<>();
         for (int i = 0; i < mSelectionList.size(); i++) {
             mFlags.put(mSelectionList.get(i), true);
@@ -95,7 +108,7 @@ public class PerViewActivity extends BaseActivity {
     protected void initVariables() {
         mSelectionList = getIntent().getStringArrayListExtra("select_paths");
         // 初始化标记容器
-        initSparseBooleanArray();
+        initHashMap();
         // 初始化当前选择数
         mCurrNum = mSelectionList.size();
     }

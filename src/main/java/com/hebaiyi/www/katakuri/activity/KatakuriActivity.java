@@ -21,6 +21,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -50,6 +51,7 @@ import java.util.List;
 public class KatakuriActivity extends BaseActivity {
 
     private static final int FINISH_LOADING = 0;
+    public static final String EXTRA_NAME = "katakuri";
 
     private RecyclerView mRcvContent;
     private Toolbar mTbTop;
@@ -135,7 +137,7 @@ public class KatakuriActivity extends BaseActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.hebaiyi.www.katakuri.KatakuriActivity.freshSelection");
         mPreReceiver = new PerViewReceiver();
-        registerReceiver(mPreReceiver,intentFilter);
+        registerReceiver(mPreReceiver, intentFilter);
     }
 
     @Override
@@ -165,7 +167,10 @@ public class KatakuriActivity extends BaseActivity {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
-
+                Intent i = new Intent();
+                i.putStringArrayListExtra(EXTRA_NAME, (ArrayList<String>) mAdapter.getSelectedItems());
+                setResult(RESULT_OK, i);
+                finish();
             }
         });
 
@@ -173,7 +178,8 @@ public class KatakuriActivity extends BaseActivity {
         mBtnPerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PerViewActivity.actionStart(KatakuriActivity.this, (ArrayList<String>) mAdapter.getSelectedItems());
+                PreviewActivity.actionStart(KatakuriActivity.this,
+                        (ArrayList<String>) mAdapter.getSelectedItems());
             }
         });
 
@@ -275,6 +281,14 @@ public class KatakuriActivity extends BaseActivity {
      */
     private void initList() {
         mAdapter = new ImageAdapter(this, mPaths);
+        mAdapter.setItemClickListener(new BaseAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                ImageActivity.actionStart(KatakuriActivity.this,
+                        mAdapter.getSelectedItems(),
+                        mAdapter.getData(), position);
+            }
+        });
         GridLayoutManager manager = new GridLayoutManager(this, 4);
         mRcvContent.setLayoutManager(manager);
         mRcvContent.setAdapter(mAdapter);
@@ -354,6 +368,17 @@ public class KatakuriActivity extends BaseActivity {
         mProgressDialog.show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PreviewActivity.REQUEST_CODE || requestCode == ImageActivity.REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                setResult(RESULT_OK, data);
+                finish();
+            }
+        }
+    }
+
     private class SelectReceiver extends BroadcastReceiver {
 
         @Override
@@ -375,7 +400,7 @@ public class KatakuriActivity extends BaseActivity {
         }
     }
 
-    private class PerViewReceiver extends BroadcastReceiver{
+    private class PerViewReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {

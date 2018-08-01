@@ -10,7 +10,13 @@
             android:launchMode="singleTask"
             android:theme="@style/katakuri_theme">
         </activity>
-        <activity android:name=".activity.PerViewActivity"
+        <activity
+            android:name=".activity.PreviewActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/katakuri_theme">
+        </activity>
+        <activity
+            android:name=".activity.ImageActivity"
             android:launchMode="singleTask"
             android:theme="@style/katakuri_theme">
         </activity>

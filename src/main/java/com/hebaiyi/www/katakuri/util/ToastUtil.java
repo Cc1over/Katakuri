@@ -9,7 +9,7 @@ public class ToastUtil {
 
     public static void showToast(Context context, String text, int duration) {
         if (mToast == null) {
-            mToast = Toast.makeText(context, text, duration);
+            mToast = Toast.makeText(context.getApplicationContext(), text, duration);
         } else {
             mToast.setText(text);
             mToast.setDuration(duration);
