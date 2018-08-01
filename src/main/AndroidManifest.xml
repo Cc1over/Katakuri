@@ -20,6 +20,10 @@
             android:launchMode="singleTask"
             android:theme="@style/katakuri_theme">
         </activity>
+        <activity android:name=".activity.PermissionActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/katakuri_theme">
+        </activity>
     </application>
 
 </manifest>

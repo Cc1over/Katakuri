@@ -7,23 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,9 +31,9 @@ import android.widget.Toast;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.adapter.BaseAdapter;
 import com.hebaiyi.www.katakuri.adapter.ImageAdapter;
-import com.hebaiyi.www.katakuri.adapter.PopupAdapter;
 import com.hebaiyi.www.katakuri.bean.Folder;
 import com.hebaiyi.www.katakuri.model.KatakuriModel;
+import com.hebaiyi.www.katakuri.ui.FolderPopupWindow;
 import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.lang.ref.WeakReference;
@@ -92,8 +85,6 @@ public class KatakuriActivity extends BaseActivity {
         initToolbar();
         // 设置按钮监听
         initClick();
-        // 请求权限
-        requestPermission();
         // 请求对话框
         initProgressDialog();
     }
@@ -109,8 +100,8 @@ public class KatakuriActivity extends BaseActivity {
 
     @Override
     protected void loadData() {
-        // 扫描图片
-        scanPicture();
+        // 加载图片
+        loadPicture();
     }
 
     /**
@@ -229,47 +220,31 @@ public class KatakuriActivity extends BaseActivity {
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initFolderCatalogue() {
-        View contentView = LayoutInflater.from(this).inflate(R.layout.popup_katakuri, null);
-        mPopupFolderList = new PopupWindow(this);
-        mPopupFolderList.setContentView(contentView);
-        mPopupFolderList.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
         mRootView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-        mPopupFolderList.setHeight(mRootView.getMeasuredHeight() / 12 * 9);
-        mPopupFolderList.setOutsideTouchable(true);
-        mPopupFolderList.setFocusable(true);
-        mPopupFolderList.setBackgroundDrawable(new ColorDrawable(getColor(R.color.white)));
-        mPopupFolderList.setAnimationStyle(R.style.anim_katakuri_popup);
-        mPopupFolderList.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        mPopupFolderList = new FolderPopupWindow(this, mRootView,
+                mFolders, new FolderPopupWindow.FolderWindowCallback() {
             @Override
-            public void onDismiss() {
+            public void firstItemClick() {
+                // 格式化数据
+                mAdapter.formatDate();
+                mBtnFolder.setText(getString(R.string.katakuri_all_picture));
+                mPopupFolderList.dismiss();
+            }
+
+            @Override
+            public void commonItemClick(int position) {
+                mBtnFolder.setText(mFolders.get(position).getFolderName());
+                mAdapter.exchangeData(mModel.getPaths(mFolders.get(position).getDir()));
+                mPopupFolderList.dismiss();
+            }
+
+            @Override
+            public void windowDissmiss() {
                 isShowing = false;
                 // 恢复透明度
                 WindowManager.LayoutParams lp = getWindow().getAttributes();
                 lp.alpha = 1f;
                 getWindow().setAttributes(lp);
-            }
-        });
-        RecyclerView rcv = contentView.findViewById(R.id.popup_rcv_list);
-        // 设置分界线
-        rcv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        // 设置recyclerView
-        final PopupAdapter adapter = new PopupAdapter(mFolders);
-        rcv.setLayoutManager(new LinearLayoutManager(this));
-        rcv.setAdapter(adapter);
-        // 设置监听
-        adapter.setItemClickListener(new BaseAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                if (adapter.getItemViewType(position) == PopupAdapter.TYPE_HEADER) {
-                    // 格式化数据
-                    mAdapter.formatDate();
-                    mBtnFolder.setText(getString(R.string.katakuri_all_picture));
-                    mPopupFolderList.dismiss();
-                } else {
-                    mBtnFolder.setText(mFolders.get(position).getFolderName());
-                    mAdapter.exchangeData(mModel.getPaths(mFolders.get(position).getDir()));
-                    mPopupFolderList.dismiss();
-                }
             }
         });
         // 显示popupWindow
@@ -328,29 +303,16 @@ public class KatakuriActivity extends BaseActivity {
     /**
      * 请求访问权限
      */
-    private void requestPermission() {
+    private void loadPicture() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            PermissionActivity.actionStart(this);
         } else {
             // 搜寻图片
             scanPicture();
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    scanPicture();
-                } else {
-                    Toast.makeText(this, "获取权限失败", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-        }
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void setStatusBarColor() {
@@ -374,6 +336,14 @@ public class KatakuriActivity extends BaseActivity {
         if (requestCode == PreviewActivity.REQUEST_CODE || requestCode == ImageActivity.REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 setResult(RESULT_OK, data);
+                finish();
+            }
+        }
+        if(requestCode==PermissionActivity.REQUEST_CODE){
+            if(resultCode==PackageManager.PERMISSION_GRANTED){
+                scanPicture();
+            }else{
+                Toast.makeText(this, "获取权限失败", Toast.LENGTH_SHORT).show();
                 finish();
             }
         }

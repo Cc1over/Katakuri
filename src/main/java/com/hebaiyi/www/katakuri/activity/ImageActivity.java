@@ -33,7 +33,7 @@ import java.util.List;
 
 import static com.hebaiyi.www.katakuri.activity.KatakuriActivity.EXTRA_NAME;
 
-public class ImageActivity extends BaseActivity  {
+public class ImageActivity extends BaseActivity {
 
     public static int REQUEST_CODE = 96;
     private static final int MAX_SELECT_NUM = Config.getInstance().getMaxSelectable();
@@ -97,7 +97,7 @@ public class ImageActivity extends BaseActivity  {
             public void onClick(View v) {
                 Intent i = new Intent();
                 i.putStringArrayListExtra(EXTRA_NAME, (ArrayList<String>) mSelectionList);
-                setResult(RESULT_OK,i);
+                setResult(RESULT_OK, i);
                 finish();
             }
         });
@@ -328,7 +328,12 @@ public class ImageActivity extends BaseActivity  {
         mAdapter.setItemClickListener(new BaseAdapter.ItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                int index = mAllPaths.indexOf(mSelectionList.get(position));
+                String path = mSelectionList.get(position);
+                int index = mAllPaths.indexOf(path);
+                if (index == -1) {
+                    ToastUtil.showToast(ImageActivity.this, "该文件夹没有该项", Toast.LENGTH_SHORT);
+                    return;
+                }
                 mVpContent.setCurrentItem(index);
                 mAdapter.setCheek(position);
                 // 设置checkbox
@@ -351,7 +356,6 @@ public class ImageActivity extends BaseActivity  {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
     }
-
 
 
 }
