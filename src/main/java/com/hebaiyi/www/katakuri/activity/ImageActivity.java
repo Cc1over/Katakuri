@@ -47,10 +47,17 @@ public class ImageActivity extends BaseActivity {
     private Button mBtnSure;
     private TextView mTvNum;
     private PerViewBottomAdapter mAdapter;
-    private HashMap<String, Boolean> mFlags;
-    private int mCurrPosition;
-    private int mCurrNum;
+    private HashMap<String, Boolean> mFlags; // 标记是否选择容器
+    private int mCurrPosition; // 当前索引
+    private int mCurrNum; // 当前选择数
 
+    /**
+     *  启动活动
+     * @param activity 发出指令的活动
+     * @param paths 选中项的地址
+     * @param allPaths 文件夹全部地址
+     * @param currPosition 当前选择项索引
+     */
     public static void actionStart(Activity activity, List<String> paths, List<String> allPaths, int currPosition) {
         Intent intent = new Intent(activity, ImageActivity.class);
         intent.putStringArrayListExtra("selection_paths", (ArrayList<String>) paths);
@@ -124,7 +131,6 @@ public class ImageActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // 开启滑动菜单
                 finish();
                 break;
         }
@@ -178,8 +184,11 @@ public class ImageActivity extends BaseActivity {
                         mSelectionList.add(currPath);
                         initRecyclerView();
                     } else {
+                        // 添加选择项
                         mAdapter.addItem(currPath);
+                        // 设置底部图片边框
                         mAdapter.setCheek(mSelectionList.indexOf(currPath));
+                        // 移动到最后位置
                         mRcvRotation.scrollToPosition(mSelectionList.size() - 1);
                     }
                     // 确认数加1
@@ -226,14 +235,17 @@ public class ImageActivity extends BaseActivity {
 
             @Override
             public void onPageSelected(int position) {
+                // 保存位置
                 mCurrPosition = position;
                 // 设置checkbox
                 setCheckbox();
                 String num = StringUtil.buildString(mCurrPosition + 1 + "", "/", mAllPaths.size() + "");
                 mTvNum.setText(num);
                 if (isSelect()) {
+                    // 设置底部图片边框
                     mAdapter.setCheek(mSelectionList.indexOf(mAllPaths.get(position)));
                 } else {
+                    // 隐藏底部图片边框
                     mAdapter.hideCheek();
                 }
             }
@@ -263,11 +275,13 @@ public class ImageActivity extends BaseActivity {
     private void controlEdge() {
         if (mTbTop.getVisibility() == View.VISIBLE) {
             mTbTop.setVisibility(View.GONE);
+            // 隐藏状态栏
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mRcvRotation.setVisibility(View.GONE);
         } else {
             mTbTop.setVisibility(View.VISIBLE);
+            // 显示状态栏
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mRcvRotation.setVisibility(View.VISIBLE);
         }
@@ -306,6 +320,7 @@ public class ImageActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        // 发送广播通知主界面改变
         Intent i = new Intent("com.hebaiyi.www.katakuri.KatakuriActivity.freshSelection");
         i.putExtra("return_date", mFlags);
         sendBroadcast(i);
@@ -315,9 +330,11 @@ public class ImageActivity extends BaseActivity {
      * 初始化recyclerView
      */
     private void initRecyclerView() {
+        // 判断是否有选择项
         if (mSelectionList.size() == 0) {
             return;
         }
+        // 判断adapter是否经过初始化
         if (mAdapter != null) {
             mAdapter.notifyDataSetChanged();
             return;

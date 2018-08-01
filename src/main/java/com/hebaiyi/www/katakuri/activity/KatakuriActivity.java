@@ -62,8 +62,8 @@ public class KatakuriActivity extends BaseActivity {
     private RelativeLayout mRlytBottom;
     private PopupWindow mPopupFolderList;
     private ImageView mIvTriangle;
-    private View mRootView;
-    private boolean isShowing;
+    private View mRootView; // 根布局
+    private boolean isShowing; // popupWindow是否显示
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override

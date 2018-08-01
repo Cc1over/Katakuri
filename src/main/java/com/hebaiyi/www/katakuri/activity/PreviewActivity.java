@@ -9,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -121,7 +120,6 @@ public class PreviewActivity extends BaseActivity  {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // 开启滑动菜单
                 finish();
                 break;
         }
@@ -140,12 +138,15 @@ public class PreviewActivity extends BaseActivity  {
 
             @Override
             public void onPageSelected(int position) {
+                // 设置底部图片边框
                 mAdapter.setCheek(position);
+                // 设置checkbox状态
                 if (mFlags.get(mSelectionList.get(position))) {
                     mCbSelection.setChecked(true);
                 } else {
                     mCbSelection.setChecked(false);
                 }
+                // 记录索引
                 mCurrPosition = position;
                 String num = StringUtil.buildString(position + 1 + "", "/", mSelectionList.size() + "");
                 mTvNum.setText(num);
@@ -207,11 +208,13 @@ public class PreviewActivity extends BaseActivity  {
     private void controlEdge() {
         if (mTbTop.getVisibility() == View.VISIBLE) {
             mTbTop.setVisibility(View.GONE);
+            // 隐藏状态栏
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mRcvRotation.setVisibility(View.GONE);
         } else {
             mTbTop.setVisibility(View.VISIBLE);
+            // 显示状态栏
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mRcvRotation.setVisibility(View.VISIBLE);
         }
@@ -247,6 +250,7 @@ public class PreviewActivity extends BaseActivity  {
     @Override
     protected void onPause() {
         super.onPause();
+        // 发送广播通知主界面更新
         Intent i = new Intent("com.hebaiyi.www.katakuri.KatakuriActivity.freshSelection");
         i.putExtra("return_date", mFlags);
         sendBroadcast(i);
