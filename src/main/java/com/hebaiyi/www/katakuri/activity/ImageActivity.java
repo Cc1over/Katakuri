@@ -241,6 +241,9 @@ public class ImageActivity extends BaseActivity {
                 setCheckbox();
                 String num = StringUtil.buildString(mCurrPosition + 1 + "", "/", mAllPaths.size() + "");
                 mTvNum.setText(num);
+                if(mAdapter==null){
+                    return;
+                }
                 if (isSelect()) {
                     // 设置底部图片边框
                     mAdapter.setCheek(mSelectionList.indexOf(mAllPaths.get(position)));
