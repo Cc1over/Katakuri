@@ -59,7 +59,7 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
         iv.setTag(s);
         // 根据选择情况添加滤镜
         if (mFlags.get(position) || !needToFilter) {
-            mEngine.loadThumbnail(R.drawable.list_item_iv_default,s,iv);
+            mEngine.loadThumbnail(R.drawable.list_item_iv_default, s, iv);
         } else {
             mEngine.loadThumbnailOnlyFilter(s, iv, mFilter);
         }
@@ -110,6 +110,9 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
      * 给imageView设置边框
      */
     public void setCheek(int position) {
+        if(!mFlags.get(position)){
+            needToFilter = true;
+        }
         mCurrPosition = position;
         notifyDataSetChanged();
     }
