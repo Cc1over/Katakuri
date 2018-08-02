@@ -23,7 +23,6 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
     private ImageEngine mEngine;
     private Caramel.Filter mFilter;
     private SparseBooleanArray mFlags;
-    private SparseArray<View> mCheeks;
     private int mCurrPosition;
     private boolean needToFilter;
 
@@ -47,8 +46,6 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
         for (int i = 0; i < list.size(); i++) {
             mFlags.put(i, true);
         }
-        // 初始化边框view
-        mCheeks = new SparseArray<>();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
