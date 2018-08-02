@@ -94,15 +94,14 @@ public class PerViewBottomAdapter extends BaseAdapter<String> {
     }
 
     public void deleteItem(int position) {
-        mFlags.put(position, false);
         getData().remove(position);
         mCurrPosition = -1;
         this.notifyDataSetChanged();
     }
 
     public void addItem(String path) {
-        mFlags.put(getData().size() - 1, true);
         getData().add(path);
+        mFlags.put(getData().size() - 1, true);
         this.notifyDataSetChanged();
     }
 

@@ -150,6 +150,7 @@ public class PreviewActivity extends BaseActivity  {
                 mCurrPosition = position;
                 String num = StringUtil.buildString(position + 1 + "", "/", mSelectionList.size() + "");
                 mTvNum.setText(num);
+                mRcvRotation.scrollToPosition(position);
             }
 
             @Override

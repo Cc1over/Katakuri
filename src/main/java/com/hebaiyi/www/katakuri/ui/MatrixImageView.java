@@ -83,7 +83,6 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
             int height = getHeight();
             Drawable drawable = getDrawable();
             if (drawable == null) {
-
                 return;
             }
             int intrinsicWidth = drawable.getIntrinsicWidth();

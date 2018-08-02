@@ -8,20 +8,25 @@
         <activity
             android:name=".activity.KatakuriActivity"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/katakuri_theme">
         </activity>
         <activity
             android:name=".activity.PreviewActivity"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/katakuri_theme">
         </activity>
         <activity
             android:name=".activity.ImageActivity"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/katakuri_theme">
         </activity>
-        <activity android:name=".activity.PermissionActivity"
+        <activity
+            android:name=".activity.PermissionActivity"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/katakuri_theme">
         </activity>
     </application>
