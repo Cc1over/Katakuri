@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -29,7 +30,7 @@ import java.util.List;
 
 import static com.hebaiyi.www.katakuri.activity.KatakuriActivity.EXTRA_NAME;
 
-public class PreviewActivity extends BaseActivity  {
+public class PreviewActivity extends BaseActivity {
 
     public static int REQUEST_CODE = 55;
 
@@ -85,8 +86,15 @@ public class PreviewActivity extends BaseActivity  {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent();
-                i.putStringArrayListExtra(EXTRA_NAME, (ArrayList<String>) mSelectionList);
-                setResult(RESULT_OK,i);
+                ArrayList list = new ArrayList();
+                for (int k = 0; k < mSelectionList.size(); k++) {
+                    String path = mSelectionList.get(k);
+                    if (mFlags.get(path)) {
+                        list.add(path);
+                    }
+                }
+                i.putStringArrayListExtra(EXTRA_NAME, list);
+                setResult(RESULT_OK, i);
                 finish();
             }
         });

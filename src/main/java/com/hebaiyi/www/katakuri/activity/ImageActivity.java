@@ -9,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -93,7 +92,7 @@ public class ImageActivity extends BaseActivity {
         // 初始化viewPager
         initViewPager();
         // 初始化RecyclerView
-        initRecyclerView();
+        handleRecyclerView();
         // 设置ViewPager滑动监听
         setViewPagerListener();
         // 设置checkbox点击监听
@@ -182,7 +181,7 @@ public class ImageActivity extends BaseActivity {
                     // 判空处理
                     if (mAdapter == null) {
                         mSelectionList.add(currPath);
-                        initRecyclerView();
+                        handleRecyclerView();
                     } else {
                         // 添加选择项
                         mAdapter.addItem(currPath);
@@ -332,7 +331,7 @@ public class ImageActivity extends BaseActivity {
     /**
      * 初始化recyclerView
      */
-    private void initRecyclerView() {
+    private void handleRecyclerView() {
         // 判断是否有选择项
         if (mSelectionList.size() == 0) {
             return;
