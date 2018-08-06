@@ -280,7 +280,7 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView
         //最后一个点抬起或者取消，结束所有模式
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             //如果之前是缩放模式,还需要触发一下缩放结束动画
-            if (mCurrMode == ZOOM_MODE_SCROLL) {
+            if (mCurrMode == ZOOM_MODE_SCALE) {
                 scaleEnd();
             }
             mCurrMode = ZOOM_MODE_FREE;
@@ -290,54 +290,39 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView
         else if (action == MotionEvent.ACTION_POINTER_UP) {
             //多个手指情况下抬起一个手指,此时需要是缩放模式才触发
             if (event.getPointerCount() > 2) {
-                // 如果还有两个以上的手指
-                if (event.getPointerCount() > 2) {
-                    //如果还没结束缩放模式，但是第一个点抬起了，那么让第二个点和第三个点作为缩放控制点
-                    if (event.getAction() >> 8 == 0) {
-                        saveScaleContext(event.getX(1),
-                                event.getY(1),
-                                event.getX(2),
-                                event.getY(2));
-                        //如果还没结束缩放模式，但是第二个点抬起了，那么让第一个点和第三个点作为缩放控制点
-                    } else if (event.getAction() >> 8 == 1) {
-                        saveScaleContext(event.getX(0),
-                                event.getY(0),
-                                event.getX(2),
-                                event.getY(2));
-                    }
+                //如果还没结束缩放模式，但是第一个点抬起了，那么让第二个点和第三个点作为缩放控制点
+                if (event.getAction() >> 8 == 0) {
+                    saveScaleContext(event.getX(1),
+                            event.getY(1),
+                            event.getX(2),
+                            event.getY(2));
+                    //如果还没结束缩放模式，但是第二个点抬起了，那么让第一个点和第三个点作为缩放控制点
+                } else if (event.getAction() >> 8 == 1) {
+                    saveScaleContext(event.getX(0),
+                            event.getY(0),
+                            event.getX(2),
+                            event.getY(2));
                 }
             }
             // 单指按下事件
-            if (action == MotionEvent.ACTION_DOWN) {
-                if (!(mScaleAnimation != null && mScaleAnimation.isRunning())) {
-                    //停止所有动画
-                    cancelAllAnimator();
-                    //切换到缩放模式
-                    mCurrMode = ZOOM_MODE_SCROLL;
-                    mLastMovePoint.set(new PointF(event.getX(), event.getY()));
-                }
-                Log.d("ACTION_DOWN: ", mCurrMode + "");
-            }
-            // 多指触控按下事件
-            else if (action == MotionEvent.ACTION_POINTER_DOWN) {
-                if (!(mScaleAnimation != null && mScaleAnimation.isRunning())) {
-                    //停止所有动画
-                    cancelAllAnimator();
-                    //切换到缩放模式
-                    mCurrMode = ZOOM_MODE_SCALE;
-                    //保存缩放的两个手指
-                    saveScaleContext(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
-                }
-                Log.d("ACTION_POINTER_DOWN: ", mCurrMode + "");
-            }
-            //在矩阵动画过程中不允许启动滚动模式
+        } else if (action == MotionEvent.ACTION_DOWN) {
             if (!(mScaleAnimation != null && mScaleAnimation.isRunning())) {
                 //停止所有动画
                 cancelAllAnimator();
-                //切换到滚动模式
+                //切换到缩放模式
                 mCurrMode = ZOOM_MODE_SCROLL;
-                //保存触发点用于move计算差值
-                mLastMovePoint.set(event.getX(), event.getY());
+                mLastMovePoint.set(new PointF(event.getX(), event.getY()));
+            }
+        }
+        // 多指触控按下事件
+        else if (action == MotionEvent.ACTION_POINTER_DOWN) {
+            if (!(mScaleAnimation != null && mScaleAnimation.isRunning())) {
+                //停止所有动画
+                cancelAllAnimator();
+                //切换到缩放模式
+                mCurrMode = ZOOM_MODE_SCALE;
+                //保存缩放的两个手指
+                saveScaleContext(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
             }
         }
         // 手指移动事件
@@ -360,7 +345,6 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView
                     scale(mScaleCenter, mScaleBase, distance, mLastMovePoint);
                 }
             }
-            Log.d("ACTION_MOVE: ", mCurrMode + "");
         }
         //无论如何都处理各种外部手势
         mGestureDetector.onTouchEvent(event);
