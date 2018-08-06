@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.engine.ImageEngine;
-import com.hebaiyi.www.katakuri.ui.ScaleImageView;
 import com.hebaiyi.www.katakuri.ui.ZoomImageView;
 
 import java.util.List;
