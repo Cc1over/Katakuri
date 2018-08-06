@@ -17,7 +17,7 @@ public class ImageAction implements Runnable {
     private Semaphore mSemaphore;
     private Caramel.Filter mFilter;
 
-    ImageAction(Caramel.Filter filter,Semaphore semaphore, ImageView imageView, String path, int width, int height, MemoryCache cache, Dispatcher dispatcher) {
+    ImageAction(Caramel.Filter filter, Semaphore semaphore, ImageView imageView, String path, int width, int height, MemoryCache cache, Dispatcher dispatcher) {
         mPath = path;
         mDispatcher = dispatcher;
         mCache = cache;
@@ -30,18 +30,21 @@ public class ImageAction implements Runnable {
 
     @Override
     public void run() {
-        // 获取并且压缩图片
-        mBitmap = BitmapCompress.sampleCompression(mPath, mWidth, mHeight);
-        // 添加到内存中
-        mCache.addBitmapToCache(mPath, mBitmap);
-        // 任务完成
-        mDispatcher.performFinish(this);
-        // 释放信号量
-        mSemaphore.release();
+
+            // 获取并且压缩图片
+            mBitmap = BitmapCompress.sampleCompression(mPath, mWidth, mHeight);
+            // 添加到内存中
+            mCache.addBitmapToCache(mPath, mBitmap);
+            // 任务完成
+            mDispatcher.performFinish(this);
+            // 释放信号量
+            mSemaphore.release();
+
     }
 
     /**
-     *  获取对应任务的图片地址
+     * 获取对应任务的图片地址
+     *
      * @return 图片地址
      */
     String getPath() {
@@ -49,7 +52,8 @@ public class ImageAction implements Runnable {
     }
 
     /**
-     *  获取加载得到的bitmap
+     * 获取加载得到的bitmap
+     *
      * @return 对应的bitmap对象
      */
     Bitmap getBitmap() {
@@ -57,18 +61,20 @@ public class ImageAction implements Runnable {
     }
 
     /**
-     *  获取ImageView
+     * 获取ImageView
+     *
      * @return 对应的imageView
      */
-    ImageView getImageView(){
+    ImageView getImageView() {
         return mImageView;
     }
 
     /**
-     *  获取过滤器
+     * 获取过滤器
+     *
      * @return 过滤器
      */
-    Caramel.Filter getFilter(){
+    Caramel.Filter getFilter() {
         return mFilter;
     }
 

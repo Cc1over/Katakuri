@@ -2,14 +2,15 @@ package com.hebaiyi.www.katakuri.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -18,10 +19,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.hebaiyi.www.katakuri.Config;
 import com.hebaiyi.www.katakuri.R;
 import com.hebaiyi.www.katakuri.adapter.BaseAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewBottomAdapter;
 import com.hebaiyi.www.katakuri.adapter.PerViewViewPagerAdapter;
+import com.hebaiyi.www.katakuri.engine.ImageEngine;
 import com.hebaiyi.www.katakuri.util.StringUtil;
 
 import java.util.ArrayList;
@@ -118,6 +121,7 @@ public class PreviewActivity extends BaseActivity {
         initHashMap();
         // 初始化当前选择数
         mCurrNum = mSelectionList.size();
+
     }
 
     @Override
@@ -141,7 +145,6 @@ public class PreviewActivity extends BaseActivity {
         mVpContent.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             @Override
@@ -154,11 +157,11 @@ public class PreviewActivity extends BaseActivity {
                 } else {
                     mCbSelection.setChecked(false);
                 }
-                // 记录索引
-                mCurrPosition = position;
                 String num = StringUtil.buildString(position + 1 + "", "/", mSelectionList.size() + "");
                 mTvNum.setText(num);
                 mRcvRotation.scrollToPosition(position);
+                // 记录索引
+                mCurrPosition = position;
             }
 
             @Override
@@ -244,8 +247,8 @@ public class PreviewActivity extends BaseActivity {
      * 初始化ViewPager
      */
     private void initViewPager() {
-        PerViewViewPagerAdapter vpAdapter = new PerViewViewPagerAdapter(mSelectionList);
-        vpAdapter.setViewPagerClick(new PerViewViewPagerAdapter.ViewPagerClickCallBack() {
+        PerViewViewPagerAdapter mVpAdapter = new PerViewViewPagerAdapter(mSelectionList);
+        mVpAdapter.setViewPagerClick(new PerViewViewPagerAdapter.ViewPagerClickCallBack() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onViewPagerItemClick() {
@@ -253,7 +256,7 @@ public class PreviewActivity extends BaseActivity {
                 controlEdge();
             }
         });
-        mVpContent.setAdapter(vpAdapter);
+        mVpContent.setAdapter(mVpAdapter);
     }
 
     @Override

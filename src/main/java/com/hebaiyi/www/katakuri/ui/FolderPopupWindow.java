@@ -1,5 +1,6 @@
 package com.hebaiyi.www.katakuri.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -26,7 +27,8 @@ public class FolderPopupWindow extends PopupWindow {
     public FolderPopupWindow(Context context, View rootView,
                              List<Folder> folders, final FolderWindowCallback callback) {
         super();
-        final View contentView = LayoutInflater.from(context).inflate(R.layout.popup_katakuri, null);
+        @SuppressLint("InflateParams")
+        View contentView = LayoutInflater.from(context).inflate(R.layout.popup_katakuri, null);
         setContentView(contentView);
         setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
         setHeight(rootView.getMeasuredHeight() / 12 * 9);

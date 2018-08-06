@@ -21,6 +21,7 @@ public class InnerEngine implements ImageEngine {
         Caramel.get()
                 .load(path)
                 .resize(resize, resize)
+                .throughCache(false)
                 .into(imageView);
     }
 

@@ -5,10 +5,21 @@
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     <item name="colorAccent">@color/colorAccent</item>
-</style>
 
+    <!--popupWindow的弹出弹入的style-->
+</style>
     <style name="anim_katakuri_popup">
         <item name="android:windowEnterAnimation">@anim/katakuri_popup_off</item>
         <item name="android:windowExitAnimation">@anim/katakuri_popup_in</item>
     </style>
+
+    <!--透明主题activity-->
+    <style name="transparent_theme" parent="@android:style/Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item> <!-- 无标题 -->
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
 </resources>

@@ -6,22 +6,26 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewTreeObserver;
+
+import static android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
 public class MatrixImageView extends android.support.v7.widget.AppCompatImageView
-        implements ViewTreeObserver.OnGlobalLayoutListener,
-        ScaleGestureDetector.OnScaleGestureListener, View.OnTouchListener {
+        implements OnGlobalLayoutListener,
+        OnScaleGestureListener, View.OnTouchListener {
 
     private static final int DELAY_MILLIS = 5;
 
     private float mMaxScale; // 最大缩放值
     private float mMidScale; // 双击缩放值
     private float mInitScale; // 初始化缩放值
+    private float mMinScale; // 最小缩放值
     private Matrix mMatrix;
     private int mTouchSlop;
     private ScaleGestureDetector mScaleGesture;
@@ -32,6 +36,7 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
     private float mLastY;
     private boolean isCanDrag;
     private int lastPointerCount;
+    private OnSingleClickListener mSingleClickListener;
 
     public MatrixImageView(Context context) {
         super(context);
@@ -47,6 +52,18 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
     public MatrixImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
+    }
+
+    /**
+     * 添加点击点击事件
+     *
+     * @param listener
+     */
+    public void setOnSingleClickListener(OnSingleClickListener listener) {
+        if (listener == null) {
+            throw new NullPointerException("listener empty");
+        }
+        mSingleClickListener = listener;
     }
 
     /**
@@ -99,6 +116,7 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
             }
             // 初始化缩放数据
             mInitScale = scale;
+            mMinScale = (0.8f * mInitScale);
             mMidScale = 2 * mInitScale;
             mMaxScale = 4 * mInitScale;
             //将图片移动到控件的中心
@@ -116,6 +134,13 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
      */
     private void initDoubleGestureDetector(Context context) {
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                mSingleClickListener.onSingleClick(MatrixImageView.this);
+                return super.onSingleTapConfirmed(e);
+            }
+
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 if (isScaling) {
@@ -167,12 +192,13 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
         if (getDrawable() == null) {
             return true;
         }
-        if ((scale < mMaxScale && scaleFactor > 1.0f) || (scale > mInitScale && scaleFactor < 1.0f)) {
+        // 放大
+        if ((scale < mMaxScale && scaleFactor > 1.0f) || (scale > mMinScale && scaleFactor < 1.0f)) {
             if (scale * scaleFactor > mMaxScale) {
                 scaleFactor = mMaxScale / scale;
             }
-            if (scale * scaleFactor < mInitScale) {
-                scaleFactor = mInitScale / scale;
+            if (scale * scaleFactor < mMinScale) {
+                scaleFactor = mMinScale / scale;
             }
             mMatrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
             checkBorderAndCenterWhenScale();
@@ -181,6 +207,23 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
 
         return true;
     }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+        return true;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+        // 回弹
+        if (getScale() < mInitScale ) {
+        mMatrix.postScale(mInitScale, mInitScale,
+                detector.getFocusX(), detector.getFocusY());
+        checkBorderAndCenterWhenScale();
+        setImageMatrix(mMatrix);
+    }
+}
+
 
     /**
      * 检测和测试白边的位置
@@ -230,16 +273,6 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
         }
         mMatrix.postTranslate(deltaX, deltaY);
         setImageMatrix(mMatrix);
-    }
-
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
-        return true;
-    }
-
-    @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
-
     }
 
     @Override
@@ -307,6 +340,7 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
         return true;
     }
 
+
     private boolean isCanDrag(float dx, float dy) {
         return Math.sqrt((dx * dx) + (dy * dy)) >= mTouchSlop;
     }
@@ -352,6 +386,10 @@ public class MatrixImageView extends android.support.v7.widget.AppCompatImageVie
                 setImageMatrix(mMatrix);
             }
         }
+    }
+
+    public interface OnSingleClickListener {
+        void onSingleClick(View view);
     }
 
 }

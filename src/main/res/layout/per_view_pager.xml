@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.hebaiyi.www.katakuri.ui.MatrixImageView
+    <com.hebaiyi.www.katakuri.ui.ZoomImageView
         android:id="@+id/per_view_iv_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

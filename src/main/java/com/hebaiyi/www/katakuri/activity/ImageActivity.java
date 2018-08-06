@@ -306,6 +306,7 @@ public class ImageActivity extends BaseActivity {
         mVpContent.setCurrentItem(mCurrPosition);
         // 设置checkbox
         setCheckbox();
+        
     }
 
     /**

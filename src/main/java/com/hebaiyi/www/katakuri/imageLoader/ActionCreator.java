@@ -15,6 +15,7 @@ public class ActionCreator {
     private int mRes;
     private boolean throughCache = true;
     private Caramel.Filter mFilter;
+    private boolean isResize;
 
     ActionCreator(String path, Dispatcher dispatcher) {
         mPath = path;
@@ -28,6 +29,7 @@ public class ActionCreator {
      * 重新设置图片大小
      */
     public ActionCreator resize(int width, int height) {
+        isResize = true;
         mWidth = width;
         mHeight = height;
         return this;
@@ -71,14 +73,19 @@ public class ActionCreator {
             Caramel.setBitmap(imageView, bm, mFilter);
         } else {
             // 获取宽高信息
-            mWidth = ViewUtil.getWidth(imageView);
-            mHeight = ViewUtil.getHeight(imageView);
-            // 创建任务
+            if (!isResize) {
+                mWidth = ViewUtil.getWidth(imageView);
+                mHeight = ViewUtil.getHeight(imageView);
+            }// 创建任务
             ImageAction action = new ImageAction(mFilter, mDispatcher.getTaskSemaphore(),
                     imageView, mPath, mWidth, mHeight, mMemoryCache, mDispatcher);
             // 执行任务
             mDispatcher.performExecute(action);
         }
+    }
+
+    String getPath() {
+        return mPath;
     }
 
 
