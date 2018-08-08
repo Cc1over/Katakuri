@@ -1,4 +1,4 @@
-package com.hebaiyi.www.katakuri.imageLoader;
+package com.hebaiyi.www.katakuri.util;
 
 import android.graphics.Bitmap;
 import android.util.LruCache;

@@ -2,7 +2,7 @@ package com.hebaiyi.www.katakuri.disposer;
 
 import android.graphics.Bitmap;
 
-import com.hebaiyi.www.katakuri.imageLoader.MemoryCache;
+import com.hebaiyi.www.katakuri.util.MemoryCache;
 
 public class FirstDisposer extends Disposer {
 
