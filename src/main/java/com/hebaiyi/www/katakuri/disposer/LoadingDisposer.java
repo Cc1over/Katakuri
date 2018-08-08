@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import com.hebaiyi.www.katakuri.imageLoader.BitmapCompress;
 import com.hebaiyi.www.katakuri.util.MemoryCache;
 
-public class SecondDisposer extends Disposer {
+public class LoadingDisposer extends Disposer {
 
     // 内存缓存类
     private MemoryCache mCache = MemoryCache.getInstance();
@@ -14,7 +14,7 @@ public class SecondDisposer extends Disposer {
     // 结果
     private Bitmap mBitmap;
 
-    public SecondDisposer(){
+    public LoadingDisposer(){
 
     }
 

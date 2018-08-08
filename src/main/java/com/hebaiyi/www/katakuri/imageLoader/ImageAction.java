@@ -3,8 +3,7 @@ package com.hebaiyi.www.katakuri.imageLoader;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
-import com.hebaiyi.www.katakuri.disposer.Disposer;
-import com.hebaiyi.www.katakuri.disposer.FirstDisposer;
+import com.hebaiyi.www.katakuri.disposer.CacheDisposer;
 
 import java.util.concurrent.Semaphore;
 
@@ -12,21 +11,17 @@ public class ImageAction implements Runnable {
 
     private Dispatcher mDispatcher;
     private String mPath;
-    private int mWidth;
-    private int mHeight;
     private Bitmap mBitmap;
     private ImageView mImageView;
     private Semaphore mSemaphore;
     private Caramel.Filter mFilter;
-    private FirstDisposer mDisposer;
+    private CacheDisposer mDisposer;
 
     ImageAction(Caramel.Filter filter, Semaphore semaphore,
-                ImageView imageView, String path, int width,
-                int height, Dispatcher dispatcher, FirstDisposer disposer) {
+                ImageView imageView, String path,
+                Dispatcher dispatcher, CacheDisposer disposer) {
         mPath = path;
         mDispatcher = dispatcher;
-        mWidth = width;
-        mHeight = height;
         mImageView = imageView;
         mSemaphore = semaphore;
         mFilter = filter;
@@ -35,8 +30,6 @@ public class ImageAction implements Runnable {
 
     @Override
     public void run() {
-        // 设置宽高信息
-        mDisposer.setDimension(mWidth, mHeight);
         // 设置不拦截
         mDisposer.refuseIntercept();
         // 执行任务

@@ -3,7 +3,8 @@ package com.hebaiyi.www.katakuri.imageLoader;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
-import com.hebaiyi.www.katakuri.disposer.FirstDisposer;
+import com.hebaiyi.www.katakuri.disposer.CacheDisposer;
+import com.hebaiyi.www.katakuri.disposer.LoadingDisposer;
 import com.hebaiyi.www.katakuri.util.ViewUtil;
 
 public class ActionCreator {
@@ -16,14 +17,24 @@ public class ActionCreator {
     private boolean throughCache = true;
     private Caramel.Filter mFilter;
     private boolean isResize;
-    private FirstDisposer mDisposer;
+    private CacheDisposer mCacheDisposer;
+    private LoadingDisposer mLoadingDisposer;
 
     ActionCreator(String path, Dispatcher dispatcher) {
         mPath = path;
         // 初始化责任链执行者
-        mDisposer = new FirstDisposer(throughCache);
+       initChain();
         // 初始化调配者
         mDispatcher = dispatcher;
+    }
+
+    /**
+     *  初始化责任链
+     */
+    private void initChain(){
+        mCacheDisposer = new CacheDisposer(throughCache);
+        mLoadingDisposer = new LoadingDisposer();
+        mCacheDisposer.setNextDisposer(mLoadingDisposer);
     }
 
     /**
@@ -68,9 +79,9 @@ public class ActionCreator {
         // 给imageView设置标签
         imageView.setTag(mPath);
         // 拦截事件
-        mDisposer.sparkIntercept();
+        mCacheDisposer.sparkIntercept();
         // 获取bitmap
-        Bitmap bm = mDisposer.disposeRequest(mPath);
+        Bitmap bm = mCacheDisposer.disposeRequest(mPath);
         if (bm != null && throughCache) {
             // 加载图片
             Caramel.setBitmap(imageView, bm, mFilter);
@@ -79,12 +90,12 @@ public class ActionCreator {
             if (!isResize) {
                 mWidth = ViewUtil.getWidth(imageView);
                 mHeight = ViewUtil.getHeight(imageView);
-                mDisposer.setDimension(mWidth,mHeight);
             }
+            mLoadingDisposer.setDimension(mWidth,mHeight);
             // 创建任务
             ImageAction action =
                     new ImageAction(mFilter, mDispatcher.getTaskSemaphore(),
-                    imageView, mPath, mWidth, mHeight, mDispatcher,mDisposer);
+                            imageView, mPath, mWidth, mHeight, mDispatcher, mCacheDisposer);
             // 执行任务
             mDispatcher.performExecute(action);
         }
