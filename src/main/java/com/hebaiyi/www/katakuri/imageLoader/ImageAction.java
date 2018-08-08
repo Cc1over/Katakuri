@@ -3,6 +3,9 @@ package com.hebaiyi.www.katakuri.imageLoader;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import com.hebaiyi.www.katakuri.disposer.Disposer;
+import com.hebaiyi.www.katakuri.disposer.FirstDisposer;
+
 import java.util.concurrent.Semaphore;
 
 public class ImageAction implements Runnable {
@@ -12,33 +15,36 @@ public class ImageAction implements Runnable {
     private int mWidth;
     private int mHeight;
     private Bitmap mBitmap;
-    private MemoryCache mCache;
     private ImageView mImageView;
     private Semaphore mSemaphore;
     private Caramel.Filter mFilter;
+    private FirstDisposer mDisposer;
 
-    ImageAction(Caramel.Filter filter, Semaphore semaphore, ImageView imageView, String path, int width, int height, MemoryCache cache, Dispatcher dispatcher) {
+    ImageAction(Caramel.Filter filter, Semaphore semaphore,
+                ImageView imageView, String path, int width,
+                int height, Dispatcher dispatcher, FirstDisposer disposer) {
         mPath = path;
         mDispatcher = dispatcher;
-        mCache = cache;
         mWidth = width;
         mHeight = height;
         mImageView = imageView;
         mSemaphore = semaphore;
         mFilter = filter;
+        mDisposer = disposer;
     }
 
     @Override
     public void run() {
-
-            // 获取并且压缩图片
-            mBitmap = BitmapCompress.sampleCompression(mPath, mWidth, mHeight);
-            // 添加到内存中
-            mCache.addBitmapToCache(mPath, mBitmap);
-            // 任务完成
-            mDispatcher.performFinish(this);
-            // 释放信号量
-            mSemaphore.release();
+        // 设置宽高信息
+        mDisposer.setDimension(mWidth, mHeight);
+        // 设置不拦截
+        mDisposer.refuseIntercept();
+        // 执行任务
+        mBitmap = mDisposer.disposeRequest(mPath);
+        // 任务完成
+        mDispatcher.performFinish(this);
+        // 释放信号量
+        mSemaphore.release();
 
     }
 

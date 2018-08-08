@@ -3,11 +3,11 @@ package com.hebaiyi.www.katakuri.imageLoader;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import com.hebaiyi.www.katakuri.disposer.FirstDisposer;
 import com.hebaiyi.www.katakuri.util.ViewUtil;
 
 public class ActionCreator {
 
-    private MemoryCache mMemoryCache;
     private Dispatcher mDispatcher;
     private String mPath;
     private int mWidth;
@@ -16,11 +16,12 @@ public class ActionCreator {
     private boolean throughCache = true;
     private Caramel.Filter mFilter;
     private boolean isResize;
+    private FirstDisposer mDisposer;
 
     ActionCreator(String path, Dispatcher dispatcher) {
         mPath = path;
-        // 创建内存缓存类
-        mMemoryCache = MemoryCache.getInstance();
+        // 初始化责任链执行者
+        mDisposer = new FirstDisposer(throughCache);
         // 初始化调配者
         mDispatcher = dispatcher;
     }
@@ -66,8 +67,10 @@ public class ActionCreator {
         }
         // 给imageView设置标签
         imageView.setTag(mPath);
-        // 从内存取出bitmap
-        Bitmap bm = mMemoryCache.getBitmapFromCache(mPath);
+        // 拦截事件
+        mDisposer.sparkIntercept();
+        // 获取bitmap
+        Bitmap bm = mDisposer.disposeRequest(mPath);
         if (bm != null && throughCache) {
             // 加载图片
             Caramel.setBitmap(imageView, bm, mFilter);
@@ -76,9 +79,12 @@ public class ActionCreator {
             if (!isResize) {
                 mWidth = ViewUtil.getWidth(imageView);
                 mHeight = ViewUtil.getHeight(imageView);
-            }// 创建任务
-            ImageAction action = new ImageAction(mFilter, mDispatcher.getTaskSemaphore(),
-                    imageView, mPath, mWidth, mHeight, mMemoryCache, mDispatcher);
+                mDisposer.setDimension(mWidth,mHeight);
+            }
+            // 创建任务
+            ImageAction action =
+                    new ImageAction(mFilter, mDispatcher.getTaskSemaphore(),
+                    imageView, mPath, mWidth, mHeight, mDispatcher,mDisposer);
             // 执行任务
             mDispatcher.performExecute(action);
         }

@@ -107,6 +107,7 @@ public class ZoomImageView extends android.support.v7.widget.AppCompatImageView
 
             @Override
             protected RectF resetInstance(RectF rectF) {
+                // 置空
                 rectF.setEmpty();
                 return rectF;
             }
