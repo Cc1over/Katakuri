@@ -1,6 +1,7 @@
 package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.hebaiyi.www.katakuri.disposer.CacheDisposer;
@@ -22,8 +23,6 @@ public class ActionCreator {
 
     ActionCreator(String path, Dispatcher dispatcher) {
         mPath = path;
-        // 初始化责任链执行者
-       initChain();
         // 初始化调配者
         mDispatcher = dispatcher;
     }
@@ -31,8 +30,8 @@ public class ActionCreator {
     /**
      *  初始化责任链
      */
-    private void initChain(){
-        mCacheDisposer = new CacheDisposer(throughCache);
+    private void initChain(boolean isThroughCache){
+        mCacheDisposer = new CacheDisposer(isThroughCache);
         mLoadingDisposer = new LoadingDisposer();
         mCacheDisposer.setNextDisposer(mLoadingDisposer);
     }
@@ -72,6 +71,8 @@ public class ActionCreator {
      * @param imageView 对应的ImageView对象
      */
     public void into(ImageView imageView) {
+        // 初始化责任链
+        initChain(throughCache);
         // 设置占位图
         if (mRes != 0) {
             imageView.setImageResource(mRes);
@@ -92,10 +93,11 @@ public class ActionCreator {
                 mHeight = ViewUtil.getHeight(imageView);
             }
             mLoadingDisposer.setDimension(mWidth,mHeight);
+            Log.d( "width: ",mWidth+"");
             // 创建任务
             ImageAction action =
                     new ImageAction(mFilter, mDispatcher.getTaskSemaphore(),
-                            imageView, mPath, mWidth, mHeight, mDispatcher, mCacheDisposer);
+                            imageView, mPath, mDispatcher, mCacheDisposer);
             // 执行任务
             mDispatcher.performExecute(action);
         }

@@ -1,6 +1,7 @@
 package com.hebaiyi.www.katakuri.disposer;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.hebaiyi.www.katakuri.util.MemoryCache;
 
@@ -24,6 +25,7 @@ public class CacheDisposer extends Disposer {
 
     @Override
     protected boolean canDisposeRequest(String request) {
+        Log.d("canDisposeRequest: ",throughCache+"");
         if (!throughCache) {
             return false;
         }

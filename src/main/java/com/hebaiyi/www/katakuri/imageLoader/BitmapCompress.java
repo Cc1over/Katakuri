@@ -2,6 +2,7 @@ package com.hebaiyi.www.katakuri.imageLoader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class BitmapCompress {
 
@@ -9,6 +10,7 @@ public class BitmapCompress {
      * Bitmap对象采样压缩
      */
     public static Bitmap sampleCompression(String path, int requestWidth, int requestHeight) {
+        Log.d("sampleCompression: ",requestHeight+"");
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
